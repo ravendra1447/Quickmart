@@ -1,10 +1,10 @@
 'use client';
 import Link from 'next/link';
-import { FiFacebook, FiTwitter, FiYoutube, FiShoppingBag, FiStar, FiHelpCircle, FiGift } from 'react-icons/fi';
+import { FiFacebook, FiTwitter, FiYoutube, FiShoppingBag, FiStar, FiHelpCircle, FiGift, FiTruck } from 'react-icons/fi';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
-  
+
   const footerSections = [
     {
       title: 'ABOUT',
@@ -27,7 +27,7 @@ export default function Footer() {
   return (
     <footer className="bg-[#212121] text-white pt-12 pb-6 mt-20">
       <div className="max-w-[1248px] mx-auto px-4">
-        
+
         {/* Top Section: Links */}
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8 pb-10 border-b border-white/10">
           {footerSections.map((section) => (
@@ -71,28 +71,35 @@ export default function Footer() {
         </div>
 
         {/* Bottom Section: Extras */}
-        <div className="pt-6 flex flex-wrap items-center justify-between gap-6">
-          <div className="flex flex-wrap items-center gap-8">
+        <div className="pt-8 flex flex-col lg:flex-row items-center justify-center lg:justify-between gap-6 sm:gap-8">
+          <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-8 w-full lg:w-auto">
             <Link href="/register" className="flex items-center gap-2 text-xs font-bold text-white hover:text-fk-yellow transition-colors">
               <FiShoppingBag className="text-fk-yellow" /> Become a Seller
             </Link>
-            <Link href="#" className="flex items-center gap-2 text-xs font-bold text-white hover:text-fk-yellow transition-colors">
+            <Link href="/advertise" className="flex items-center gap-2 text-xs font-bold text-white hover:text-fk-yellow transition-colors">
               <FiStar className="text-fk-yellow" /> Advertise
             </Link>
-            <Link href="#" className="flex items-center gap-2 text-xs font-bold text-white hover:text-fk-yellow transition-colors">
+            <Link href="/gift-cards" className="flex items-center gap-2 text-xs font-bold text-white hover:text-fk-yellow transition-colors">
               <FiGift className="text-fk-yellow" /> Gift Cards
             </Link>
-            <Link href="#" className="flex items-center gap-2 text-xs font-bold text-white hover:text-fk-yellow transition-colors">
+            <Link href="/help-center" className="flex items-center gap-2 text-xs font-bold text-white hover:text-fk-yellow transition-colors">
               <FiHelpCircle className="text-fk-yellow" /> Help Center
+            </Link>
+            <Link href="/delivery/register" className="flex items-center gap-2 text-xs font-bold text-white hover:text-fk-yellow transition-colors">
+              <FiTruck className="text-fk-yellow" /> Join as Delivery Partner
             </Link>
           </div>
 
-          <div className="text-xs font-bold text-white">
-            © 2007-{currentYear} QuickMart.com
-          </div>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-12 w-full lg:w-auto">
+            <div className="text-xs font-bold text-white text-center">
+              © 2007-{currentYear} QuickMart.com
+            </div>
 
-          <div className="flex items-center gap-4">
-             <img src="https://static-assets-web.flixcart.com/batman-returns/batman-returns/p/images/payment-method-c454b1.svg" alt="payments" className="h-4" />
+            <div className="flex items-center justify-center gap-5 sm:gap-6 bg-white px-6 py-3.5 rounded-2xl shadow-[0_10px_20px_rgba(0,0,0,0.2)]">
+               <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/UPI-Logo-vector.svg" alt="UPI" className="h-5 sm:h-6 w-auto object-contain" />
+               <img src="https://cdn.iconscout.com/icon/free/png-256/visa-3-226460.png" alt="Visa" className="h-5 sm:h-6 w-auto object-contain" />
+               <img src="https://upload.wikimedia.org/wikipedia/commons/a/a4/Mastercard_2019_logo.svg" alt="Mastercard" className="h-5 sm:h-6 w-auto object-contain" />
+            </div>
           </div>
         </div>
 

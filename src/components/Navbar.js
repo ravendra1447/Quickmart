@@ -3,12 +3,13 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
   FiShoppingCart, FiSearch, FiChevronDown, FiUser, FiPackage, 
-  FiLogOut, FiGrid, FiZap, FiHeart, FiGift, FiHeadphones, FiMonitor, FiDownload, FiXCircle, FiMenu, FiX 
+  FiLogOut, FiGrid, FiZap, FiHeart, FiGift, FiHeadphones, FiMonitor, FiDownload, FiXCircle, FiMenu, FiX, FiMapPin, FiArrowRight 
 } from 'react-icons/fi';
 import useAuthStore from '@/store/authStore';
 import useCartStore from '@/store/cartStore';
 import { useState, useEffect } from 'react';
 import { productAPI } from '@/lib/api';
+import NotificationBell from './NotificationBell';
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -58,6 +59,7 @@ export default function Navbar() {
 
             {/* Mobile Actions (Cart & Login) */}
             <div className="flex items-center gap-4 md:hidden">
+              <NotificationBell />
               <Link href={user ? "/profile" : "/login"} className="text-white font-bold text-[13px] flex flex-col items-center leading-none">
                 <FiUser size={20} />
               </Link>
@@ -87,6 +89,8 @@ export default function Navbar() {
           {/* Desktop User Actions */}
           <div className="hidden md:flex items-center gap-10 text-white font-bold text-sm">
             
+            <NotificationBell />
+
             {/* Login Dropdown */}
             <div className="relative group py-4">
               <button className="bg-white text-fk-blue px-10 py-2 rounded-sm font-black text-sm hover:shadow-lg transition-all flex items-center gap-2 border border-slate-100">
@@ -110,6 +114,12 @@ export default function Navbar() {
                   <Link href="/profile?tab=wishlist" className="flex items-center gap-4 px-4 py-3 hover:bg-slate-50 text-sm font-bold">
                     <FiHeart className="text-fk-blue" size={16} /> Wishlist
                   </Link>
+                  <Link href="/rewards" className="flex items-center gap-4 px-4 py-3 hover:bg-slate-50 text-sm font-bold border-t border-slate-50">
+                    <FiZap className="text-fk-blue" size={16} /> QuickMart Plus Zone
+                  </Link>
+                  <Link href="/rewards" className="flex items-center gap-4 px-4 py-3 hover:bg-slate-50 text-sm font-bold">
+                    <FiGift className="text-fk-blue" size={16} /> Rewards
+                  </Link>
                   
                   {user?.role === 'super_admin' && (
                     <Link href="/admin/dashboard" className="flex items-center gap-4 px-4 py-3 hover:bg-blue-50 text-blue-700 text-xs font-black uppercase tracking-widest border-t border-slate-100"><FiGrid /> Admin Dashboard</Link>
@@ -127,6 +137,30 @@ export default function Navbar() {
               </div>
             </div>
 
+            {/* More Dropdown */}
+            <div className="relative group py-4">
+              <button className="text-white font-bold text-sm flex items-center gap-1 hover:text-fk-yellow transition-colors">
+                More
+                <FiChevronDown className="group-hover:rotate-180 transition-transform" />
+              </button>
+              <div className="absolute top-[90%] left-1/2 -translate-x-1/2 w-56 bg-white text-[#212121] shadow-2xl rounded-sm opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all pt-1 border border-slate-100 overflow-hidden">
+                <div className="py-1">
+                  <Link href="/notifications/preferences" className="flex items-center gap-4 px-4 py-3 hover:bg-slate-50 text-sm font-bold border-b border-slate-50">
+                    <FiZap className="text-fk-blue" size={16} /> Notification Preferences
+                  </Link>
+                  <Link href="/support" className="flex items-center gap-4 px-4 py-3 hover:bg-slate-50 text-sm font-bold border-b border-slate-50">
+                    <FiHeadphones className="text-fk-blue" size={16} /> 24x7 Customer Care
+                  </Link>
+                  <Link href="/advertise" className="flex items-center gap-4 px-4 py-3 hover:bg-slate-50 text-sm font-bold border-b border-slate-50">
+                    <FiArrowRight className="text-fk-blue" size={16} /> Advertise
+                  </Link>
+                  <Link href="/download-app" className="flex items-center gap-4 px-4 py-3 hover:bg-slate-50 text-sm font-bold">
+                    <FiDownload className="text-fk-blue" size={16} /> Download App
+                  </Link>
+                </div>
+              </div>
+            </div>
+
             {/* Cart */}
             <Link href="/cart" className="flex items-center gap-2 relative group hover:text-fk-yellow transition-colors">
               <FiShoppingCart size={20} className="group-hover:scale-110 transition-transform" />
@@ -139,6 +173,18 @@ export default function Navbar() {
             </Link>
           </div>
 
+        </div>
+
+        {/* Brand New Location Bar (Flipkart Style) */}
+        <div className="bg-[#f0f2f5] border-b border-dark-50 py-1.5 hidden md:block">
+           <div className="max-w-[1248px] mx-auto px-4 flex items-center gap-2 text-[#212121]">
+              <FiMapPin className="text-dark-500" size={14} />
+              <span className="text-[11px] font-bold">Deliver to</span>
+              <button onClick={() => window.location.href='/checkout'} className="text-[11px] font-black hover:text-fk-blue flex items-center gap-1 transition-colors">
+                 {user?.addresses?.[0] ? `${user.addresses[0].city} ${user.addresses[0].pincode}` : 'Select delivery location'}
+                 <FiChevronDown size={12} />
+              </button>
+           </div>
         </div>
       </nav>
 

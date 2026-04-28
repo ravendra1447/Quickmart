@@ -1,11 +1,12 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { FiPackage, FiUser, FiCreditCard, FiCalendar, FiArrowRight, FiCheckCircle, FiXCircle } from 'react-icons/fi';
+import { FiPackage, FiUser, FiCreditCard, FiCalendar, FiArrowRight, FiCheckCircle, FiXCircle, FiTruck } from 'react-icons/fi';
 import { adminAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState([]);
+  const [partners, setPartners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('');
 
@@ -14,12 +15,35 @@ export default function AdminOrders() {
     adminAPI.getOrders({ status: filter || undefined, limit: 50 }).then((r) => setOrders(r.data || [])).catch(() => {}).finally(() => setLoading(false));
   };
 
-  useEffect(fetchOrders, [filter]);
+  const fetchPartners = () => {
+    // Fetch all delivery partners to populate the dropdown
+    adminAPI.getDeliveryPartners().then(r => {
+      console.log('Fetched Partners:', r.data);
+      setPartners(r.data || []);
+    }).catch(err => {
+      console.error('Error fetching partners:', err);
+      toast.error('Could not load delivery partners');
+    });
+  };
+
+  useEffect(() => {
+    fetchOrders();
+    fetchPartners();
+  }, [filter]);
 
   const handleUpdateStatus = async (orderId, newStatus) => {
     try {
       await adminAPI.updateOrderStatus(orderId, { status: newStatus });
       toast.success(`Order status updated to ${newStatus}`);
+      fetchOrders();
+    } catch (err) { toast.error(err.message); }
+  };
+
+  const handleAssignPartner = async (orderId, partnerId, type = 'pickup') => {
+    if (!partnerId) return;
+    try {
+      await adminAPI.assignOrder(orderId, partnerId, { assignment_type: type });
+      toast.success(`${type === 'pickup' ? 'Pickup' : 'Delivery'} partner assigned!`);
       fetchOrders();
     } catch (err) { toast.error(err.message); }
   };
@@ -80,7 +104,7 @@ export default function AdminOrders() {
                     <div>
                       <p className="text-sm font-black text-slate-900 leading-none mb-1">#{o.order_number}</p>
                       <p className="text-[10px] text-slate-400 font-bold flex items-center gap-1 uppercase">
-                        <FiCalendar size={10} /> {new Date(o.created_at).toLocaleDateString()}
+                        <FiCalendar size={10} /> {o.created_at || o.createdAt ? new Date(o.created_at || o.createdAt).toLocaleDateString() : 'N/A'}
                       </p>
                     </div>
                   </div>
@@ -90,7 +114,9 @@ export default function AdminOrders() {
                     <FiUser className="text-fb-blue" size={14} />
                     <span className="text-sm font-black text-slate-900">{o.user?.name}</span>
                   </div>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">{o.shipping_city}, {o.shipping_state}</p>
+                  <p className="text-[10px] text-slate-600 font-bold uppercase tracking-tight">{o.shipping_address}</p>
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">{o.shipping_city}, {o.shipping_state} - {o.shipping_pincode}</p>
+                  <p className="text-[10px] text-fb-blue font-bold mt-1">📞 {o.shipping_phone}</p>
                 </td>
                 <td className="px-6 py-5">
                   <div className="flex flex-col">
@@ -111,16 +137,37 @@ export default function AdminOrders() {
                 <td className="px-6 py-5 text-right">
                   <div className="flex items-center justify-end gap-2">
                     {o.status !== 'delivered' && o.status !== 'cancelled' && (
-                      <select 
-                        onChange={(e) => handleUpdateStatus(o.id, e.target.value)}
-                        className="bg-slate-50 border border-slate-200 text-[10px] font-black uppercase tracking-widest rounded-lg px-2 py-1 outline-none focus:border-fb-blue transition-all"
-                      >
-                        <option value="">Update Status</option>
-                        <option value="confirmed">Confirm</option>
-                        <option value="shipped">Ship</option>
-                        <option value="delivered">Deliver</option>
-                        <option value="cancelled">Cancel</option>
-                      </select>
+                      <div className="flex flex-col gap-2">
+                        {/* Phase Indicators */}
+                        {o.status === 'confirmed' && !o.delivery && (
+                           <div className="text-[10px] font-black text-orange-500 uppercase flex items-center gap-1"><span className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse"></span> Needs Pickup</div>
+                        )}
+                        {o.items?.some(i => i.status === 'at_hub') && (
+                           <div className="text-[10px] font-black text-fb-blue uppercase flex items-center gap-1"><span className="w-1.5 h-1.5 bg-fb-blue rounded-full animate-pulse"></span> At Hub: Ready for Delivery</div>
+                        )}
+
+                        <div className="flex items-center gap-1">
+                          <select
+                            id={`partner-select-${o.id}`}
+                            className="bg-blue-50 border border-blue-100 text-[10px] font-black uppercase tracking-widest rounded-lg px-2 py-1.5 outline-none focus:border-fb-blue transition-all flex-1"
+                            defaultValue={o.delivery?.partner_id || ''}
+                          >
+                            <option value="">{partners.length === 0 ? 'No Partners Available' : (o.items?.some(i => i.status === 'at_hub') ? 'Select Delivery Boy' : 'Select Pickup Boy')}</option>
+                            {partners.map(p => (
+                              <option key={p.id} value={p.id}>{p.name || p.user?.name || 'Unnamed Partner'} ({p.status || 'Active'})</option>
+                            ))}
+                          </select>
+                          <button 
+                            onClick={() => {
+                              const sel = document.getElementById(`partner-select-${o.id}`);
+                              handleAssignPartner(o.id, sel.value, o.items?.some(i => i.status === 'at_hub') ? 'delivery' : 'pickup');
+                            }}
+                            className="bg-fb-blue text-white p-1.5 rounded-lg shadow-sm hover:bg-fb-blue-hover transition-all text-[10px] font-black"
+                          >
+                            ASSIGN
+                          </button>
+                        </div>
+                      </div>
                     )}
                     <button className="p-2 rounded-lg bg-slate-50 text-slate-400 hover:text-fb-blue transition-all">
                       <FiArrowRight />

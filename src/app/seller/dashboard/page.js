@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { FiPackage, FiShoppingCart, FiDollarSign, FiTrendingUp, FiToggleLeft, FiToggleRight, FiAlertCircle, FiRefreshCw, FiClock, FiStar, FiArrowRight } from 'react-icons/fi';
+import { FiPackage, FiShoppingCart, FiDollarSign, FiTrendingUp, FiToggleLeft, FiToggleRight, FiAlertCircle, FiRefreshCw, FiClock, FiStar, FiArrowRight, FiTruck } from 'react-icons/fi';
 import { sellerAPI } from '@/lib/api';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
@@ -111,17 +111,25 @@ export default function SellerDashboard() {
       )}
 
       {/* Key Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-10">
         {stats.map((s, i) => (
-          <div key={i} className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all group">
-            <div className="flex items-center justify-between mb-4">
-              <div className={`w-12 h-12 rounded-xl ${s.color} flex items-center justify-center text-white text-xl shadow-lg shadow-blue-500/10`}>{s.icon}</div>
+          <div key={i} className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all group">
+            <div className="flex items-center justify-between mb-3">
+              <div className={`w-10 h-10 rounded-xl ${s.color} flex items-center justify-center text-white text-lg shadow-lg shadow-blue-500/10`}>{s.icon}</div>
               <span className="text-xs font-black text-emerald-500 bg-emerald-50 px-2 py-1 rounded-md">{s.trend}</span>
             </div>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{s.label}</p>
-            <p className="text-3xl font-black text-slate-900 mt-1">{s.value}</p>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{s.label}</p>
+            <p className="text-2xl font-black text-slate-900 mt-1">{s.value}</p>
           </div>
         ))}
+        <div className="bg-blue-600 p-5 rounded-2xl shadow-lg shadow-blue-500/30 text-white group hover:scale-[1.02] transition-all">
+           <div className="flex items-center justify-between mb-3">
+              <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white text-lg border border-white/30"><FiTruck size={20} /></div>
+              <span className="text-[10px] font-black bg-white/20 px-2 py-1 rounded-md uppercase">10KM Radius</span>
+           </div>
+           <p className="text-[10px] font-bold text-blue-100 uppercase tracking-widest">Nearby Partners</p>
+           <p className="text-2xl font-black mt-1">{data?.nearbyPartnersCount || 0} Active</p>
+        </div>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-8">

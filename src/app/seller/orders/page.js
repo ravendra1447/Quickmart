@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { FiCheck, FiX, FiPackage, FiTruck, FiRefreshCw, FiFilter } from 'react-icons/fi';
+import { FiCheck, FiX, FiPackage, FiTruck, FiRefreshCw, FiFilter, FiUser, FiCheckCircle } from 'react-icons/fi';
 import { sellerAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
 
@@ -29,7 +29,7 @@ export default function SellerOrders() {
 
   const fetchOrders = () => {
     setLoading(true);
-    sellerAPI.getOrders({ limit: 100 }).then(r => setOrders(r.data || [])).catch(() => {}).finally(() => setLoading(false));
+    sellerAPI.getOrders({ limit: 100 }).then(r => setOrders(r.data || [])).catch(() => { }).finally(() => setLoading(false));
   };
   useEffect(fetchOrders, []);
 
@@ -59,96 +59,168 @@ export default function SellerOrders() {
   if (loading) return (
     <div className="space-y-4 animate-pulse">
       <div className="h-10 bg-dark-200 rounded-xl w-1/3"></div>
-      {[1,2,3].map(i => <div key={i} className="h-24 bg-dark-100 rounded-2xl"></div>)}
+      {[1, 2, 3].map(i => <div key={i} className="h-24 bg-dark-100 rounded-2xl"></div>)}
     </div>
   );
 
   return (
-    <div className="animate-fade-in">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-dark-900">Orders</h1>
-        <button onClick={handleRefresh} className={`btn-secondary !py-2.5 text-sm flex items-center gap-2 ${refreshing ? 'animate-spin' : ''}`}>
-          <FiRefreshCw size={14} /> Refresh
+    <div className="animate-fade-in max-w-7xl mx-auto px-4 py-8">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
+        <div>
+          <h1 className="text-3xl font-black text-dark-900 tracking-tight">Order Management</h1>
+          <p className="text-dark-500 mt-1 font-medium">View, process, and track your customer orders</p>
+        </div>
+        <button onClick={handleRefresh} className={`flex items-center gap-2 px-5 py-2.5 bg-white border-2 border-slate-200 text-dark-700 font-bold rounded-xl hover:border-slate-300 hover:bg-slate-50 shadow-sm transition-all ${refreshing ? 'animate-spin' : ''}`}>
+          <FiRefreshCw size={16} className={refreshing ? 'animate-spin' : ''} /> Refresh
         </button>
       </div>
 
       {/* Filter tabs */}
-      <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+      <div className="flex gap-3 mb-8 overflow-x-auto pb-4 scrollbar-hide">
         {[
-          { key: 'all', label: 'All', count: counts.all },
-          { key: 'pending', label: '🔔 New', count: counts.pending },
-          { key: 'confirmed', label: '✅ Accepted', count: counts.confirmed },
-          { key: 'packed', label: '📦 Packed', count: counts.packed },
-          { key: 'shipped', label: '🚚 Shipped', count: counts.shipped },
-          { key: 'delivered', label: '✨ Delivered', count: counts.delivered },
+          { key: 'all', label: 'All Orders', count: counts.all, icon: '📋' },
+          { key: 'pending', label: 'New', count: counts.pending, icon: '🔔' },
+          { key: 'confirmed', label: 'Accepted', count: counts.confirmed, icon: '✅' },
+          { key: 'shipped', label: 'Shipped', count: counts.shipped, icon: '🚚' },
+          { key: 'delivered', label: 'Delivered', count: counts.delivered, icon: '✨' },
         ].map(t => (
           <button key={t.key} onClick={() => setFilter(t.key)}
-            className={`px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all ${filter === t.key ? 'gradient-primary text-white shadow-lg' : 'bg-dark-100 text-dark-600 hover:bg-dark-200'}`}>
-            {t.label} {t.count > 0 && <span className="ml-1 bg-white/20 px-1.5 py-0.5 rounded-full text-xs">{t.count}</span>}
+            className={`flex items-center gap-2 px-5 py-3 rounded-2xl text-sm font-black whitespace-nowrap transition-all border-2 ${filter === t.key ? 'bg-fk-blue border-fk-blue text-white shadow-xl shadow-fk-blue/20' : 'bg-white border-slate-100 text-slate-700 hover:border-slate-300 hover:bg-slate-50'}`}>
+            <span>{t.icon}</span> {t.label}
+            {t.count > 0 && (
+              <span className={`ml-1.5 px-2 py-0.5 rounded-full text-[10px] ${filter === t.key ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-800'}`}>
+                {t.count}
+              </span>
+            )}
           </button>
         ))}
       </div>
 
       {/* Orders List */}
-      <div className="space-y-4">
+      <div className="grid gap-6">
         {filtered.map(item => (
-          <div key={item.id} className={`glass-card p-5 card-hover ${item.status === 'pending' ? 'ring-2 ring-yellow-400 ring-offset-2' : ''}`}>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              {/* Order Info */}
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="font-bold text-dark-800 text-lg">{item.order?.order_number}</span>
-                  <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${statusColors[item.status] || 'bg-dark-100 text-dark-600'}`}>
-                    {item.status?.replace(/_/g, ' ').toUpperCase()}
+          <div key={item.id} className={`bg-white rounded-[24px] shadow-sm border border-slate-100 overflow-hidden hover:shadow-xl transition-shadow duration-300 ${item.status === 'pending' ? 'ring-2 ring-orange-400 ring-offset-2' : ''}`}>
+
+            {/* Order Header */}
+            <div className="px-6 py-4 border-b border-slate-100 bg-slate-50 flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div>
+                  <p className="text-[10px] font-black text-dark-400 uppercase tracking-widest mb-1">Order ID</p>
+                  <span className="font-black text-dark-900 text-lg">{item.order?.order_number}</span>
+                </div>
+                <div className="h-8 w-px bg-slate-200 hidden sm:block"></div>
+                <div>
+                  <p className="text-[10px] font-black text-dark-400 uppercase tracking-widest mb-1">Date</p>
+                  <span className="font-bold text-dark-700 text-sm">
+                    {item.created_at || item.createdAt || item.order?.created_at ? 
+                      new Date(item.created_at || item.createdAt || item.order?.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 
+                      'N/A'
+                    }
                   </span>
-                  {item.order?.payment_method === 'cod' && <span className="px-2 py-0.5 bg-orange-100 text-orange-700 text-xs rounded-full font-semibold">COD</span>}
                 </div>
-                <p className="text-sm text-dark-700 font-medium">{item.product_name} × {item.quantity}</p>
-                <div className="flex flex-wrap gap-4 mt-2 text-xs text-dark-500">
-                  <span>👤 {item.order?.user?.name || 'Customer'}</span>
-                  <span>📍 {item.order?.shipping_city || ''}</span>
-                  <span>🕐 {new Date(item.created_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</span>
+              </div>
+              <div className="flex items-center gap-3">
+                {item.order?.payment_method === 'cod' && <span className="px-3 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full font-black uppercase tracking-wider">Cash on Delivery</span>}
+                <span className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider ${statusColors[item.status] || 'bg-slate-100 text-slate-600'}`}>
+                  {item.status?.split('_').join(' ')}
+                </span>
+              </div>
+            </div>
+
+            <div className="p-6 flex flex-col lg:flex-row justify-between gap-8">
+
+              {/* Product Details */}
+              <div className="flex-1 flex gap-6">
+                <div className="w-20 h-20 bg-slate-50 rounded-2xl flex items-center justify-center flex-shrink-0 border border-slate-100">
+                  <FiPackage className="text-slate-300" size={32} />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-dark-900 mb-2 leading-tight">{item.product_name}</h3>
+                  <div className="flex flex-wrap items-center gap-6 text-sm">
+                    <div>
+                      <p className="text-[10px] font-black text-dark-400 uppercase tracking-widest mb-0.5">Quantity</p>
+                      <p className="font-bold text-dark-800">{item.quantity} Unit{item.quantity > 1 ? 's' : ''}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black text-dark-400 uppercase tracking-widest mb-0.5">Customer</p>
+                      <p className="font-bold text-dark-800 flex items-center gap-1.5"><FiUser className="text-fk-blue" /> {item.order?.shipping_name || item.order?.user?.name || 'Customer'}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black text-dark-400 uppercase tracking-widest mb-0.5">City</p>
+                      <p className="font-bold text-dark-800">{item.order?.shipping_city || 'N/A'}</p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* Amount */}
-              <div className="text-right">
-                <p className="text-xl font-extrabold text-dark-900">₹{(item.price_at_purchase * item.quantity).toFixed(0)}</p>
-                <p className="text-xs text-green-600 font-semibold">Earning: ₹{item.seller_earning}</p>
+              {/* Delivery Assignment Info */}
+              <div className="flex-1 flex flex-col gap-2 min-w-[200px]">
+                 <p className="text-[10px] font-black text-dark-400 uppercase tracking-widest mb-1">Logistics Status</p>
+                 {item.order?.delivery ? (
+                   <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-fk-blue shadow-sm">
+                         <FiTruck size={20} />
+                      </div>
+                      <div>
+                         <p className="text-xs font-black text-fk-blue leading-tight">{item.order.delivery.partner?.name || 'Assigned Partner'}</p>
+                         <p className="text-[10px] font-bold text-slate-500 mt-0.5 capitalize">{item.order.delivery.status?.split('_').join(' ')}</p>
+                         {item.order.delivery.partner?.phone && <p className="text-[10px] font-bold text-slate-400">{item.order.delivery.partner.phone}</p>}
+                      </div>
+                   </div>
+                 ) : (
+                   <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 flex items-center gap-3 opacity-60">
+                      <FiTruck className="text-slate-400" size={20} />
+                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Assigning Partner...</p>
+                   </div>
+                 )}
               </div>
 
-              {/* Actions */}
-              <div className="flex items-center gap-2">
-                {item.status === 'pending' && (
-                  <>
-                    <button onClick={() => updateStatus(item.id, 'confirmed')}
-                      className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-green-500 text-white font-semibold text-sm hover:bg-green-600 transition-all shadow-lg shadow-green-500/20">
-                      <FiCheck size={16} /> Accept
+              {/* Financials & Actions */}
+              <div className="flex flex-col items-start lg:items-end justify-between border-t lg:border-t-0 lg:border-l border-slate-100 pt-6 lg:pt-0 lg:pl-8 min-w-[200px]">
+                <div className="text-left lg:text-right mb-6 lg:mb-0">
+                  <p className="text-[10px] font-black text-dark-400 uppercase tracking-widest mb-1">Total Amount</p>
+                  <p className="text-2xl font-black text-dark-900">₹{(item.price_at_purchase * item.quantity).toFixed(0)}</p>
+                  <p className="text-xs font-bold text-[#008c00] bg-green-50 inline-block px-2 py-1 rounded mt-1">Your Earning: ₹{item.seller_earning}</p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                  {item.status === 'pending' && (
+                    <>
+                      <button onClick={() => rejectOrder(item.id)}
+                        className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white border-2 border-red-100 text-red-600 font-black text-sm hover:bg-red-50 hover:border-red-200 transition-all">
+                        <FiX size={18} /> Reject
+                      </button>
+                      <button onClick={() => updateStatus(item.id, 'confirmed')}
+                        className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#fb641b] text-white font-black text-sm hover:bg-[#e65a18] shadow-lg shadow-orange-500/20 transition-all">
+                        <FiCheck size={18} /> Accept Order
+                      </button>
+                    </>
+                  )}
+                  {statusFlow[item.status] && item.status !== 'pending' && (
+                    <button onClick={() => updateStatus(item.id, statusFlow[item.status].next)}
+                      className={`flex-1 lg:flex-none w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-white font-black text-sm transition-all shadow-lg ${statusFlow[item.status].color}`}>
+                      {statusFlow[item.status].icon} Mark as {statusFlow[item.status].label}
                     </button>
-                    <button onClick={() => rejectOrder(item.id)}
-                      className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-red-500 text-white font-semibold text-sm hover:bg-red-600 transition-all">
-                      <FiX size={16} /> Reject
-                    </button>
-                  </>
-                )}
-                {statusFlow[item.status] && item.status !== 'pending' && (
-                  <button onClick={() => updateStatus(item.id, statusFlow[item.status].next)}
-                    className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-white font-semibold text-sm transition-all shadow-lg ${statusFlow[item.status].color}`}>
-                    {statusFlow[item.status].icon} {statusFlow[item.status].label}
-                  </button>
-                )}
-                {(item.status === 'delivered' || item.status === 'cancelled') && (
-                  <span className="text-xs text-dark-400 italic">Completed</span>
-                )}
+                  )}
+                  {(item.status === 'delivered' || item.status === 'cancelled') && (
+                    <div className="flex items-center gap-2 text-sm font-black text-dark-400 px-4 py-2 bg-slate-50 rounded-xl">
+                      <FiCheckCircle className="text-green-500" /> Completed
+                    </div>
+                  )}
+                </div>
               </div>
+
             </div>
           </div>
         ))}
 
         {filtered.length === 0 && (
-          <div className="text-center py-16">
-            <span className="text-5xl">📦</span>
-            <p className="text-dark-500 mt-4 font-medium">No {filter === 'all' ? '' : filter} orders</p>
+          <div className="bg-white rounded-[32px] p-16 text-center shadow-sm border border-slate-100">
+            <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+              <FiPackage className="text-slate-300" size={40} />
+            </div>
+            <h3 className="text-2xl font-black text-dark-900 mb-2">No {filter === 'all' ? '' : filter} orders found</h3>
+            <p className="text-dark-500 font-medium">When you receive new orders, they will appear here.</p>
           </div>
         )}
       </div>

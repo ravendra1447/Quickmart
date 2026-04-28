@@ -177,6 +177,46 @@ export default function CheckoutPage() {
                   </div>
                 ) : (
                   <div className="space-y-6 animate-fade-in">
+                    <div className="flex items-center justify-between mb-2">
+                       <label className="text-xs font-black text-dark-400 uppercase tracking-wider ml-1">New Shipping Address</label>
+                       <button 
+                         type="button" 
+                         onClick={async () => {
+                           if (!navigator.geolocation) return toast.error('Geolocation is not supported');
+                           setLoading(true);
+                           navigator.geolocation.getCurrentPosition(async (pos) => {
+                             const { latitude, longitude } = pos.coords;
+                             try {
+                               const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+                               const data = await res.json();
+                               const addr = data.address;
+                               setShipping(s => ({
+                                 ...s,
+                                 address: data.display_name,
+                                 city: addr.city || addr.town || addr.village || '',
+                                 state: addr.state || '',
+                                 pincode: addr.postcode || ''
+                               }));
+                               toast.success('Location fetched successfully!');
+                             } catch (err) {
+                               toast.error('Failed to get address from location');
+                             } finally {
+                               setLoading(false);
+                             }
+                           }, (error) => {
+                             setLoading(false);
+                             if (error.code === 1) {
+                               toast.error('📍 Location Denied! Please enable it in browser settings.', { duration: 5000 });
+                             } else {
+                               toast.error('Location Error. Please enter manually.');
+                             }
+                           });
+                         }}
+                         className="flex items-center gap-2 text-xs font-black text-primary-600 bg-primary-50 px-4 py-2 rounded-xl hover:bg-primary-100 transition-all active:scale-95"
+                       >
+                          <FiMapPin /> USE CURRENT LOCATION
+                       </button>
+                    </div>
                     <div className="grid sm:grid-cols-2 gap-5">
                       <div className="space-y-2">
                         <label className="text-xs font-black text-dark-400 uppercase tracking-wider ml-1">Full Name</label>
@@ -235,8 +275,8 @@ export default function CheckoutPage() {
                        <span className="text-2xl">⚡</span>
                        {!isScheduled && <FiCheck className="text-[#fb641b]" />}
                     </div>
-                    <p className="font-black text-[#212121]">Instant Delivery</p>
-                    <p className="text-sm text-dark-500 mt-1">Arrival in ~{estimatedTime} minutes</p>
+                    <p className="font-black text-[#212121]">Standard Delivery</p>
+                    <p className="text-sm text-dark-500 mt-1">Arriving by {new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })}</p>
                   </button>
                   
                   <button type="button" onClick={() => setIsScheduled(true)} 

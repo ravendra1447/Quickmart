@@ -4,6 +4,86 @@ import { FiMapPin, FiClock, FiSave, FiPhone, FiInfo, FiCompass, FiZap, FiCheckCi
 import { sellerAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
 
+const ServiceAreasSection = ({ inputClass, labelClass }) => {
+  const [areas, setAreas] = useState([]);
+  const [newPincode, setNewPincode] = useState('');
+  const [newAreaName, setNewAreaName] = useState('');
+
+  const fetchAreas = () => {
+    sellerAPI.getStoreAreas().then(r => setAreas(r.data)).catch((err) => {
+      console.error('Fetch Areas Error:', err);
+    });
+  };
+
+  useEffect(fetchAreas, []);
+
+  const addArea = async () => {
+    if (!newPincode) return toast.error('Pincode is required');
+    try {
+      console.log('Adding area:', { pincode: newPincode, area_name: newAreaName });
+      await sellerAPI.addStoreArea({ pincode: newPincode, area_name: newAreaName });
+      setNewPincode('');
+      setNewAreaName('');
+      fetchAreas();
+      toast.success('Area added!');
+    } catch (err) { 
+      console.error('Add Area Error:', err);
+      toast.error(err.response?.data?.message || err.message || 'Failed to add area'); 
+    }
+  };
+
+  const removeArea = async (id) => {
+    try {
+      await sellerAPI.removeStoreArea(id);
+      fetchAreas();
+      toast.success('Area removed');
+    } catch (err) { toast.error(err.message); }
+  };
+
+  return (
+    <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden mt-8">
+      <div className="p-6 border-b border-slate-50 flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600 shadow-inner"><FiZap size={20} /></div>
+        <h2 className="text-lg font-black text-slate-900">Serviceable Pincodes</h2>
+      </div>
+      <div className="p-8">
+         <div className="flex flex-col md:flex-row gap-4 mb-8 p-6 bg-slate-50 rounded-2xl border border-slate-100">
+            <div className="flex-1">
+               <label className={labelClass}>Area Name (Optional)</label>
+               <input value={newAreaName} onChange={e => setNewAreaName(e.target.value)} className={inputClass} placeholder="e.g. Indiranagar" />
+            </div>
+            <div className="w-full md:w-48">
+               <label className={labelClass}>Pincode</label>
+               <input value={newPincode} onChange={e => setNewPincode(e.target.value)} className={inputClass} placeholder="e.g. 226010" maxLength={6} />
+            </div>
+            <div className="flex items-end">
+               <button type="button" onClick={addArea} className="w-full md:w-auto px-8 py-3 bg-slate-900 text-white rounded-xl font-black text-sm hover:bg-black transition-all">ADD AREA</button>
+            </div>
+         </div>
+
+         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+            {areas.map(area => (
+               <div key={area.id} className="p-3 bg-white border border-slate-100 rounded-xl flex items-center justify-between group hover:border-fb-blue transition-all">
+                  <div>
+                     <p className="text-[10px] font-black text-slate-400 uppercase leading-none mb-1">{area.area_name}</p>
+                     <p className="text-sm font-black text-slate-800">{area.pincode}</p>
+                  </div>
+                  <button type="button" onClick={() => removeArea(area.id)} className="w-6 h-6 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-rose-500 hover:text-white">
+                     <FiZap className="rotate-45" size={12} />
+                  </button>
+               </div>
+            ))}
+            {areas.length === 0 && (
+               <div className="col-span-full py-10 text-center border-2 border-dashed border-slate-100 rounded-2xl text-slate-400 font-bold italic text-sm">
+                  No specific pincodes added. Radius logic will be used.
+               </div>
+            )}
+         </div>
+      </div>
+    </div>
+  );
+};
+
 export default function SellerStoreSettings() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -81,68 +161,79 @@ export default function SellerStoreSettings() {
         <p className="text-sm text-slate-500 font-medium">Configure your shop identity and operational details</p>
       </div>
 
-      <form onSubmit={handleSave} className="space-y-8 max-w-5xl">
-        {/* Basic Info Section */}
-        <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-          <div className="p-6 border-b border-slate-50 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-fb-blue shadow-inner"><FiInfo size={20} /></div>
-            <h2 className="text-lg font-black text-slate-900">Basic Information</h2>
-          </div>
-          <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className={labelClass}>Store Display Name</label>
-              <input value={form.store_name} onChange={e => update('store_name', e.target.value)} className={inputClass} placeholder="e.g. Fresh Mart" />
+      <div className="space-y-8 max-w-5xl">
+        <form onSubmit={handleSave} className="space-y-8">
+          {/* Basic Info Section */}
+          <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+            <div className="p-6 border-b border-slate-50 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-fb-blue shadow-inner"><FiInfo size={20} /></div>
+              <h2 className="text-lg font-black text-slate-900">Basic Information</h2>
             </div>
-            <div>
-              <label className={labelClass}>Contact Phone</label>
-              <div className="relative">
-                <FiPhone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input value={form.store_phone} onChange={e => update('store_phone', e.target.value)} className={`${inputClass} pl-10`} placeholder="e.g. +91 9876543210" />
+            <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className={labelClass}>Store Display Name</label>
+                <input value={form.store_name} onChange={e => update('store_name', e.target.value)} className={inputClass} placeholder="e.g. Fresh Mart" />
+              </div>
+              <div>
+                <label className={labelClass}>Contact Phone</label>
+                <div className="relative">
+                  <FiPhone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input value={form.store_phone} onChange={e => update('store_phone', e.target.value)} className={`${inputClass} pl-10`} placeholder="e.g. +91 9876543210" />
+                </div>
+              </div>
+              <div className="md:col-span-2">
+                <label className={labelClass}>Store Description</label>
+                <textarea value={form.store_description} onChange={e => update('store_description', e.target.value)} className={inputClass} rows={3} placeholder="Tell customers what you sell..." />
+              </div>
+              <div className="md:col-span-2">
+                <label className={labelClass}>Business Address</label>
+                <div className="relative">
+                  <FiMapPin className="absolute left-4 top-4 text-slate-400" />
+                  <textarea value={form.business_address} onChange={e => update('business_address', e.target.value)} className={`${inputClass} pl-10`} rows={2} placeholder="Full shop address..." />
+                </div>
               </div>
             </div>
-            <div className="md:col-span-2">
-              <label className={labelClass}>Store Description</label>
-              <textarea value={form.store_description} onChange={e => update('store_description', e.target.value)} className={inputClass} rows={3} placeholder="Tell customers what you sell..." />
-            </div>
-            <div className="md:col-span-2">
-              <label className={labelClass}>Business Address</label>
-              <div className="relative">
-                <FiMapPin className="absolute left-4 top-4 text-slate-400" />
-                <textarea value={form.business_address} onChange={e => update('business_address', e.target.value)} className={`${inputClass} pl-10`} rows={2} placeholder="Full shop address..." />
-              </div>
-            </div>
           </div>
-        </div>
 
-        {/* Location & Radius Section */}
-        <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-          <div className="p-6 border-b border-slate-50 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 shadow-inner"><FiCompass size={20} /></div>
-            <h2 className="text-lg font-black text-slate-900">Location & Delivery</h2>
-          </div>
-          <div className="p-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div>
-                <label className={labelClass}>Latitude</label>
-                <input value={form.latitude} onChange={e => update('latitude', e.target.value)} className={inputClass} placeholder="26.8467" />
+          {/* Location & Radius Section */}
+          <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+            <div className="p-6 border-b border-slate-50 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 shadow-inner"><FiCompass size={20} /></div>
+              <h2 className="text-lg font-black text-slate-900">Location & Delivery</h2>
+            </div>
+            <div className="p-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div>
+                  <label className={labelClass}>Latitude</label>
+                  <input value={form.latitude} onChange={e => update('latitude', e.target.value)} className={inputClass} placeholder="26.8467" />
+                </div>
+                <div>
+                  <label className={labelClass}>Longitude</label>
+                  <input value={form.longitude} onChange={e => update('longitude', e.target.value)} className={inputClass} placeholder="80.9462" />
+                </div>
+                <div>
+                  <label className={labelClass}>Delivery Radius (KM)</label>
+                  <input type="number" step="0.5" value={form.delivery_radius_km} onChange={e => update('delivery_radius_km', e.target.value)} className={inputClass} />
+                </div>
               </div>
-              <div>
-                <label className={labelClass}>Longitude</label>
-                <input value={form.longitude} onChange={e => update('longitude', e.target.value)} className={inputClass} placeholder="80.9462" />
-              </div>
-              <div>
-                <label className={labelClass}>Delivery Radius (KM)</label>
-                <input type="number" step="0.5" value={form.delivery_radius_km} onChange={e => update('delivery_radius_km', e.target.value)} className={inputClass} />
+              <div className="mt-8 flex flex-wrap items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                 <button type="button" onClick={detectLocation} className="px-6 py-3 bg-white border border-slate-200 rounded-xl text-sm font-black text-slate-700 hover:bg-white hover:border-fb-blue hover:text-fb-blue shadow-sm transition-all flex items-center gap-2">
+                   <FiMapPin /> Detect My Current Location
+                 </button>
+                 <p className="text-xs text-slate-400 font-bold max-w-xs">Using GPS location helps customers find your store more accurately.</p>
               </div>
             </div>
-            <div className="mt-8 flex flex-wrap items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-               <button type="button" onClick={detectLocation} className="px-6 py-3 bg-white border border-slate-200 rounded-xl text-sm font-black text-slate-700 hover:bg-white hover:border-fb-blue hover:text-fb-blue shadow-sm transition-all flex items-center gap-2">
-                 <FiMapPin /> Detect My Current Location
-               </button>
-               <p className="text-xs text-slate-400 font-bold max-w-xs">Using GPS location helps customers find your store more accurately.</p>
-            </div>
           </div>
-        </div>
+
+          <div className="flex items-center gap-4 pt-4">
+            <button type="submit" className="px-12 py-4 bg-fk-blue text-white font-black rounded-2xl text-lg hover:bg-fk-blue-hover shadow-xl shadow-fb-blue/20 transition-all transform hover:-translate-y-1 active:scale-95 flex items-center gap-3">
+              <FiSave size={22} /> Save Profile Changes
+            </button>
+          </div>
+        </form>
+
+        {/* Serviceable Pincodes Section */}
+        <ServiceAreasSection inputClass={inputClass} labelClass={labelClass} />
 
         {/* Bank & Payouts Section */}
         <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
@@ -227,14 +318,7 @@ export default function SellerStoreSettings() {
             </div>
           </div>
         </div>
-
-        <div className="flex items-center gap-4 pt-4">
-          <button type="submit" className="px-12 py-4 bg-fk-blue text-white font-black rounded-2xl text-lg hover:bg-fk-blue-hover shadow-xl shadow-fb-blue/20 transition-all transform hover:-translate-y-1 active:scale-95 flex items-center gap-3">
-            <FiSave size={22} /> Save Store Changes
-          </button>
-          <p className="text-xs text-slate-400 font-bold max-w-[200px]">Your changes will reflect instantly across the platform.</p>
-        </div>
-      </form>
+      </div>
     </div>
   );
 }

@@ -26,6 +26,7 @@ export default function LoginPage() {
       const role = res.data.user.role;
       if (role === 'super_admin') router.push('/admin/dashboard');
       else if (role === 'seller') router.push('/seller/dashboard');
+      else if (role === 'delivery_partner') router.push('/delivery/dashboard');
       else router.push('/');
     } catch (err) { toast.error(err.message || 'Invalid credentials'); }
     setLoading(false);
@@ -56,7 +57,11 @@ export default function LoginPage() {
       const res = await authAPI.verifyOtp({ ...otpForm, type });
       setAuth(res.data.user, res.data.token);
       toast.success('Login successful!');
-      router.push('/');
+      const role = res.data.user.role;
+      if (role === 'super_admin') router.push('/admin/dashboard');
+      else if (role === 'seller') router.push('/seller/dashboard');
+      else if (role === 'delivery_partner') router.push('/delivery/dashboard');
+      else router.push('/');
     } catch (err) { toast.error(err.message || 'Invalid OTP'); }
     setLoading(false);
   };

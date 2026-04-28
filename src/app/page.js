@@ -12,15 +12,24 @@ export default function HomePage() {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [banners, setBanners] = useState([]);
   const [activeBanner, setActiveBanner] = useState(0);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const { user } = useAuthStore();
   const { addItem } = useCartStore();
+
+  useEffect(() => {
+    // Show login modal after 3 seconds if user is not logged in
+    const timer = setTimeout(() => {
+      if (!user) setShowLoginModal(true);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [user]);
 
   useEffect(() => {
     // Dynamic Fetching
     productAPI.getCategories().then((r) => setCategories(r.data || [])).catch(() => {});
     
-    // Fetch Top Deals (Featured Products Only)
-    productAPI.list({ limit: 10, is_featured: true }).then((r) => setFeaturedProducts(r.data || [])).catch(() => {});
+    // Fetch Latest Products for Top Deals
+    productAPI.list({ limit: 10 }).then((r) => setFeaturedProducts(r.data || [])).catch(() => {});
     
     hyperlocalAPI.getBanners().then((r) => setBanners(r.data || [])).catch(() => {});
   }, []);
@@ -32,14 +41,31 @@ export default function HomePage() {
   }, [banners.length]);
 
   const handleAddToCart = async (productId) => {
-    if (!user) { window.location.href = '/login'; return; }
+    if (!user) { window.location.href = '/login'; return false; }
     const ok = await addItem(productId);
     if (ok) toast.success('Added to cart!');
     else toast.error('Failed to add');
+    return ok;
   };
 
   return (
-    <div className="animate-fk-fade bg-fk-bg pb-12 pt-28 md:pt-14">
+    <div className="animate-fk-fade bg-fk-bg pb-12 pt-32 md:pt-[104px]">
+      {/* Login Prompt Modal */}
+      {showLoginModal && !user && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl relative animate-slide-up">
+            <button onClick={() => setShowLoginModal(false)} className="absolute top-4 right-4 text-dark-400 hover:text-dark-900 transition-all z-10"><FiArrowRight className="rotate-45" size={24} /></button>
+            <div className="bg-fk-blue p-8 text-white">
+               <h3 className="text-2xl font-black italic tracking-tight">QuickMart Login</h3>
+               <p className="text-sm font-bold opacity-80 mt-2">Get access to your Orders, Wishlist and Recommendations</p>
+            </div>
+            <div className="p-8 space-y-4">
+               <Link href="/login" className="block w-full bg-[#fb641b] text-white text-center py-4 rounded-xl font-black text-lg shadow-xl shadow-orange-100 hover:bg-[#e65a18] transition-all">LOGIN</Link>
+               <Link href="/register" className="block w-full text-center py-4 text-fk-blue font-black border border-dark-100 rounded-xl hover:bg-slate-50 transition-all">New to QuickMart? Create an account</Link>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Professional Category Bar - Flipkart Style */}
       <section className="bg-white shadow-sm border-b border-slate-100">
         <div className="max-w-[1248px] mx-auto px-4 py-6">
@@ -117,18 +143,25 @@ export default function HomePage() {
               <h2 className="text-xl font-bold text-fk-text">Top Deals on QuickMart</h2>
               <p className="text-xs text-emerald-600 font-bold mt-1 tracking-tight">Handpicked premium items just for you</p>
             </div>
-            <Link href="/products?is_featured=true" className="bg-fk-blue text-white px-6 py-2.5 rounded-sm text-xs font-bold uppercase shadow-md hover:bg-fk-blue/90 transition-all">View All</Link>
+            <Link href="/products" className="bg-fk-blue text-white px-6 py-2.5 rounded-sm text-xs font-bold uppercase shadow-md hover:bg-fk-blue/90 transition-all">View All</Link>
           </div>
           
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 p-2 sm:p-4 gap-2 sm:gap-4">
-            {featuredProducts.map((product) => (
+            {featuredProducts.map((product) => {
+              let imgs = [];
+              try {
+                imgs = typeof product.images === 'string' ? JSON.parse(product.images) : (product.images || []);
+              } catch (e) { imgs = []; }
+              const displayImg = product.image_url || (imgs.length > 0 ? imgs[0] : null);
+
+              return (
               <div key={product.id} className="bg-white p-3 flex flex-col items-center text-center group cursor-pointer border border-slate-100 hover:shadow-xl transition-all rounded-sm relative">
                 <Link href={`/products/${product.slug}`} className="w-full">
                   <div className="h-32 sm:h-48 w-full flex items-center justify-center mb-3 relative overflow-hidden bg-slate-50 rounded-sm">
-                    {product.image_url || (product.images && product.images.length > 0) ? (
+                    {displayImg ? (
                       <img 
-                        src={getImageUrl(product.image_url || product.images[0])} 
-                        className="max-h-full object-contain group-hover:scale-110 transition-transform duration-500" 
+                        src={getImageUrl(displayImg)} 
+                        className="max-h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500" 
                         alt={product.name} 
                         onError={(e) => {
                           e.target.onerror = null;
@@ -153,22 +186,27 @@ export default function HomePage() {
                   <p className="text-emerald-600 text-[9px] sm:text-[10px] font-black uppercase text-left">Free Delivery</p>
                 </Link>
                 
-                <div className="mt-4 flex flex-col gap-2 w-full">
+                <div className="mt-4 grid grid-cols-2 gap-2 w-full">
                   <button 
                     onClick={(e) => { e.preventDefault(); handleAddToCart(product.id); }}
-                    className="w-full py-2.5 bg-white border border-fb-blue text-fb-blue text-[11px] font-black rounded-sm hover:bg-blue-50 transition-all uppercase tracking-wider"
+                    className="flex items-center justify-center py-2.5 rounded-lg border-2 border-dark-100 text-dark-700 font-black text-[9px] sm:text-[10px] uppercase hover:bg-dark-50 hover:border-dark-200 transition-all"
                   >
-                    Add to Cart
+                    + Cart
                   </button>
                   <button 
-                    onClick={(e) => { e.preventDefault(); handleAddToCart(product.id).then(() => window.location.href='/cart'); }}
-                    className="w-full py-2.5 bg-fb-blue text-white text-[11px] font-black rounded-sm hover:bg-fk-blue-hover transition-all uppercase tracking-wider shadow-lg shadow-fb-blue/20"
+                    onClick={async (e) => { 
+                      e.preventDefault(); 
+                      const ok = await handleAddToCart(product.id);
+                      if (ok) window.location.href='/checkout'; 
+                    }}
+                    className="flex items-center justify-center py-2.5 rounded-lg bg-[#fb641b] text-white font-black text-[9px] sm:text-[10px] uppercase shadow-lg shadow-orange-100 hover:bg-[#e65a18] hover:shadow-orange-200 transition-all"
                   >
                     Buy Now
                   </button>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>

@@ -72,6 +72,7 @@ export const orderAPI = {
   checkout: (data) => api.post('/orders/checkout', data),
   list: (params) => api.get('/orders', { params }),
   getById: (id) => api.get(`/orders/${id}`),
+  requestReturn: (id, data) => api.post(`/orders/${id}/return`, data),
 };
 
 // Seller APIs
@@ -87,6 +88,9 @@ export const sellerAPI = {
   getOrders: (params) => api.get('/seller/orders', { params }),
   updateOrderStatus: (id, data) => api.put(`/seller/orders/${id}/status`, data),
   getEarnings: () => api.get('/seller/earnings'),
+  getStoreAreas: () => api.get('/seller/service-areas'),
+  addStoreArea: (data) => api.post('/seller/service-areas', data),
+  removeStoreArea: (id) => api.delete(`/seller/service-areas/${id}`),
 };
 
 // Admin APIs
@@ -117,10 +121,7 @@ export const adminAPI = {
   deleteCoupon: (id) => api.delete(`/admin/coupons/${id}`),
   getDeliveryPartners: (params) => api.get('/admin/delivery-partners', { params }),
   createDeliveryPartner: (data) => api.post('/admin/delivery-partners', data),
-  updateDeliveryPartner: (id, data) => api.put(`/admin/delivery-partners/${id}`, data),
-  deleteDeliveryPartner: (id) => api.delete(`/admin/delivery-partners/${id}`),
-  assignDelivery: (data) => api.post('/admin/delivery/assign', data),
-  getDeliveryStatus: (orderId) => api.get(`/admin/delivery/${orderId}`),
+  assignOrder: (orderId, partnerId, data = {}) => api.post(`/admin/orders/${orderId}/assign`, { partner_id: partnerId, ...data }),
 };
 
 // Address APIs (Customer)
@@ -145,6 +146,36 @@ export const commonAPI = {
   uploadImage: (formData) => api.post('/upload', formData, { 
     headers: { 'Content-Type': 'multipart/form-data' } 
   }),
+};
+
+// Notification API
+export const notificationAPI = {
+  list: () => api.get('/notifications'),
+  markRead: (id) => api.put(`/notifications/${id}/read`),
+  markAllRead: () => api.put('/notifications/read-all'),
+  saveFCMToken: (token) => api.post('/notifications/fcm-token', { token }),
+};
+
+export const deliveryAPI = {
+  getDashboard: () => api.get('/delivery/dashboard'),
+  getAssignments: (params) => api.get('/delivery/assignments', { params }),
+  markPickedUp: (id) => api.put(`/delivery/assignments/${id}/pickup`),
+  markReachedHub: (id) => api.put(`/delivery/assignments/${id}/reach-hub`),
+  verifyOtp: (id, otp) => api.put(`/delivery/assignments/${id}/verify-otp`, { otp }),
+  updateProfile: (data) => api.put('/delivery/profile', data),
+};
+
+export const supportAPI = {
+  listTickets: () => api.get('/support/tickets'),
+  createTicket: (data) => api.post('/support/tickets', data),
+  getTicket: (id) => api.get(`/support/tickets/${id}`),
+  sendMessage: (id, data) => api.post(`/support/tickets/${id}/messages`, data),
+};
+
+export const returnAPI = {
+  listRequests: () => api.get('/returns'),
+  createRequest: (data) => api.post('/returns', data),
+  getRequest: (id) => api.get(`/returns/${id}`),
 };
 
 export default api;

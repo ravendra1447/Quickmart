@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { FiArrowLeft, FiCheckCircle, FiCircle, FiTruck, FiPhone, FiClock, FiTag, FiRefreshCw, FiMapPin, FiShield, FiPackage, FiShoppingBag, FiInfo } from 'react-icons/fi';
+import { FiArrowLeft, FiCheckCircle, FiCircle, FiTruck, FiPhone, FiClock, FiTag, FiRefreshCw, FiMapPin, FiShield, FiPackage, FiShoppingBag, FiInfo, FiHelpCircle } from 'react-icons/fi';
 import { orderAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
 
@@ -122,8 +122,14 @@ export default function OrderDetailPage() {
                          </div>
                       </div>
 
-                      {/* Map Markers Info */}
-                      <div className="absolute bottom-6 left-6 flex flex-col gap-3">
+                      {/* Map Markers Info & OTP */}
+                      <div className="absolute bottom-6 left-6 flex flex-col gap-3 z-10">
+                         {order.delivery?.delivery_otp && (order.status === 'shipped' || order.status === 'out_for_delivery') && (
+                            <div className="flex items-center gap-4 bg-white/95 backdrop-blur p-4 rounded-2xl shadow-xl border-l-4 border-[#fb641b]">
+                               <div><p className="text-[10px] font-black text-dark-400 uppercase tracking-widest mb-1">Delivery OTP</p><p className="text-3xl font-black text-[#fb641b] tracking-[0.2em]">{order.delivery.delivery_otp}</p></div>
+                               <div className="text-[10px] font-bold text-dark-400 max-w-[100px]">Share this with the delivery partner</div>
+                            </div>
+                         )}
                          <div className="flex items-center gap-3 bg-white/95 backdrop-blur p-3 rounded-2xl shadow-lg border border-dark-50 pr-6">
                             <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white"><FiShoppingBag size={14} /></div>
                             <div><p className="text-[10px] font-black text-dark-400 uppercase leading-none">From</p><p className="text-xs font-bold">{order.items?.[0]?.product?.seller?.sellerProfile?.store_name || 'Store'}</p></div>
@@ -164,7 +170,6 @@ export default function OrderDetailPage() {
                </div>
             </div>
 
-            {/* Delivery Details */}
             <div className="grid sm:grid-cols-2 gap-6">
                <div className="bg-white rounded-3xl p-6 shadow-sm border border-dark-100">
                   <div className="flex items-center gap-3 mb-4">
@@ -181,13 +186,22 @@ export default function OrderDetailPage() {
 
                <div className="bg-white rounded-3xl p-6 shadow-sm border border-dark-100">
                   <div className="flex items-center gap-3 mb-4">
-                     <div className="w-10 h-10 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center"><FiShield /></div>
-                     <h3 className="font-black text-dark-900 uppercase text-xs tracking-widest">Order Info</h3>
+                     <div className="w-10 h-10 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center"><FiShoppingBag /></div>
+                     <h3 className="font-black text-dark-900 uppercase text-xs tracking-widest">Pickup Point (Hub)</h3>
                   </div>
-                  <div className="space-y-3">
-                     <div className="flex justify-between items-center"><span className="text-xs font-bold text-dark-400 uppercase">Status</span><span className="text-xs font-black text-[#fb641b] uppercase tracking-widest">{order.status?.replace(/_/g, ' ')}</span></div>
-                     <div className="flex justify-between items-center"><span className="text-xs font-bold text-dark-400 uppercase">Payment</span><span className="text-xs font-black text-dark-800 uppercase tracking-widest">{order.payment_method === 'cod' ? 'Cash / UPI' : 'Paid Online'}</span></div>
-                     <div className="flex justify-between items-center"><span className="text-xs font-bold text-dark-400 uppercase">Items</span><span className="text-xs font-black text-dark-800 uppercase tracking-widest">{order.items?.length} Items</span></div>
+                  <div className="space-y-1">
+                     <p className="font-bold text-dark-900">{order.items?.[0]?.product?.seller?.sellerProfile?.store_name || 'QuickMart Hub'}</p>
+                     <p className="text-sm text-dark-600 mt-2 leading-relaxed">{order.items?.[0]?.product?.seller?.sellerProfile?.business_address || 'Address not available'}</p>
+                     {order.items?.[0]?.product?.seller?.sellerProfile?.latitude && (
+                        <a 
+                          href={`https://www.google.com/maps/dir/?api=1&destination=${order.items[0].product.seller.sellerProfile.latitude},${order.items[0].product.seller.sellerProfile.longitude}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-dark-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all"
+                        >
+                           <FiMapPin /> Navigate to Hub
+                        </a>
+                     )}
                   </div>
                </div>
             </div>
@@ -268,6 +282,19 @@ export default function OrderDetailPage() {
                    </div>
                 </div>
              )}
+
+             <div className="grid grid-cols-2 gap-4 mt-6">
+                <Link href={`/profile?tab=support&order=${order.id}`} className="flex flex-col items-center justify-center p-6 bg-white rounded-3xl border border-dark-100 shadow-sm hover:border-[#fb641b] transition-all group">
+                   <FiHelpCircle className="text-dark-400 group-hover:text-[#fb641b] mb-2" size={24} />
+                   <span className="text-xs font-black text-dark-900 uppercase tracking-widest">Need Help?</span>
+                </Link>
+                {isDelivered && (
+                  <Link href={`/orders/${order.id}/return`} className="flex flex-col items-center justify-center p-6 bg-white rounded-3xl border border-dark-100 shadow-sm hover:border-red-500 transition-all group">
+                     <FiRefreshCw className="text-dark-400 group-hover:text-red-500 mb-2" size={24} />
+                     <span className="text-xs font-black text-dark-900 uppercase tracking-widest">Return Items</span>
+                  </Link>
+                )}
+             </div>
           </div>
         </div>
       </div>

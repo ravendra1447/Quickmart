@@ -57,6 +57,7 @@ export default function AdminCategories() {
 
   const addSubcategory = async (e, categoryId) => {
     e.preventDefault();
+    if (!subForm.image_url) return toast.error('Please upload a subcategory image');
     try { 
       await adminAPI.createSubcategory({ category_id: categoryId, ...subForm }); 
       toast.success('Subcategory added'); 
@@ -142,13 +143,29 @@ export default function AdminCategories() {
             </div>
 
             {showAddSub === cat.id && (
-              <form onSubmit={(e) => addSubcategory(e, cat.id)} className="p-6 bg-blue-50/30 border-b border-slate-50 animate-fk-fade">
-                <div className="flex flex-wrap items-end gap-4">
-                  <div className="flex-1 min-w-[200px]">
-                    <label className={labelClass}>Subcategory Name</label>
+              <form onSubmit={(e) => addSubcategory(e, cat.id)} className="p-6 bg-blue-50/30 border-b border-slate-50 animate-fk-fade space-y-4">
+                <h4 className="text-sm font-black text-slate-800 uppercase tracking-tight mb-2">Create Dynamic Subcategory</h4>
+                <div className="flex flex-col md:flex-row md:items-end gap-6">
+                  <div>
+                    <label className={labelClass}>Subcategory Image *</label>
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 rounded-xl bg-white border-2 border-dashed border-slate-300 flex items-center justify-center overflow-hidden shrink-0">
+                        {subForm.image_url ? <img src={subForm.image_url} className="w-full h-full object-contain p-1" /> : <FiImage className="text-slate-300" />}
+                      </div>
+                      <label className="cursor-pointer bg-white border border-slate-200 hover:border-fk-blue hover:text-fk-blue px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all">
+                        {uploading ? 'Uploading...' : 'Upload'}
+                        <input type="file" className="hidden" onChange={(e) => handleImageUpload(e, true)} accept="image/*" />
+                      </label>
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <label className={labelClass}>Subcategory Name *</label>
                     <input value={subForm.name} onChange={(e) => setSubForm({ ...subForm, name: e.target.value })} className={inputClass} placeholder="e.g. Smartphones, T-Shirts" required />
                   </div>
-                  <button type="submit" className="px-8 py-3.5 bg-fk-blue text-white font-black rounded-xl text-xs uppercase tracking-widest hover:bg-fk-blue-hover transition-all">Add Sub-cat</button>
+                  <div className="flex gap-2">
+                     <button type="submit" disabled={uploading} className="px-8 py-3.5 bg-fk-blue text-white font-black rounded-xl text-xs uppercase tracking-widest hover:bg-fk-blue-hover transition-all">Save Sub-cat</button>
+                     <button type="button" onClick={() => setShowAddSub(null)} className="px-4 py-3.5 bg-slate-200 text-slate-600 font-black rounded-xl text-xs uppercase tracking-widest hover:bg-slate-300 transition-all">Cancel</button>
+                  </div>
                 </div>
               </form>
             )}
@@ -157,9 +174,12 @@ export default function AdminCategories() {
               <div className="p-6 bg-white">
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                   {cat.subcategories.map((sub) => (
-                    <div key={sub.id} className="relative flex items-center justify-between px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl group/sub hover:border-fb-blue transition-all">
-                      <span className="text-xs font-bold text-slate-700">{sub.name}</span>
-                      <button onClick={() => deleteSub(sub.id)} className="text-slate-300 hover:text-rose-500 transition-colors opacity-0 group-hover/sub:opacity-100"><FiTrash2 size={14} /></button>
+                    <div key={sub.id} className="relative flex flex-col items-center justify-center p-4 bg-slate-50 border border-slate-100 rounded-2xl group/sub hover:border-fk-blue transition-all">
+                      <div className="w-12 h-12 mb-3 bg-white rounded-xl shadow-sm overflow-hidden flex items-center justify-center p-1">
+                         {sub.image_url ? <img src={sub.image_url} className="w-full h-full object-contain" /> : <FiImage className="text-slate-300" />}
+                      </div>
+                      <span className="text-xs font-bold text-slate-700 text-center leading-tight">{sub.name}</span>
+                      <button onClick={() => deleteSub(sub.id)} className="absolute top-2 right-2 p-1.5 bg-white text-slate-300 rounded-lg hover:text-white hover:bg-rose-500 shadow-sm transition-all opacity-0 group-hover/sub:opacity-100"><FiTrash2 size={12} /></button>
                     </div>
                   ))}
                 </div>

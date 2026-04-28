@@ -1,13 +1,19 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { FiUser, FiMail, FiPhone, FiLock, FiLogOut, FiShoppingBag, FiMapPin, FiCreditCard, FiHelpCircle, FiArrowRight, FiShield } from 'react-icons/fi';
+import { FiUser, FiMail, FiPhone, FiLock, FiLogOut, FiShoppingBag, FiMapPin, FiCreditCard, FiHelpCircle, FiArrowRight, FiShield, FiRefreshCw } from 'react-icons/fi';
 import useAuthStore from '@/store/authStore';
 import { authAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
+import SupportSystem from '@/components/SupportSystem';
+import { useSearchParams } from 'next/navigation';
 
 export default function ProfilePage() {
+  const searchParams = useSearchParams();
+  const preselectedOrder = searchParams.get('order');
+  const initialTab = searchParams.get('tab') || 'profile';
+
   const { user, logout, setAuth } = useAuthStore();
-  const [activeTab, setActiveTab] = useState('profile');
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [loading, setLoading] = useState(false);
   
   // Forms
@@ -95,11 +101,11 @@ export default function ProfilePage() {
                <button onClick={() => window.location.href = '/addresses'} className="w-full text-left py-3 text-sm text-fk-text transition-colors font-medium hover:text-fk-blue">Manage Addresses</button>
                <button onClick={() => setActiveTab('bank')} className={`w-full text-left py-3 text-sm transition-colors font-medium ${activeTab === 'bank' ? 'text-fk-blue font-bold' : 'text-fk-text'}`}>Bank / UPI Details</button>
                <button onClick={() => setActiveTab('security')} className={`w-full text-left py-3 text-sm transition-colors font-medium ${activeTab === 'security' ? 'text-fk-blue font-bold' : 'text-fk-text'}`}>Change Password</button>
+               <button onClick={() => setActiveTab('returns')} className={`w-full text-left py-3 text-sm transition-colors font-medium ${activeTab === 'returns' ? 'text-fk-blue font-bold' : 'text-fk-text'}`}>Returns & Refunds</button>
             </div>
 
-            <button onClick={() => setActiveTab('support')} className="w-full px-5 py-4 flex items-center gap-4 text-fk-muted hover:text-fk-blue border-t border-fk-divider transition-all">
-              <FiHelpCircle /> <span className="font-bold text-sm uppercase">Customer Support</span>
-              <FiArrowRight className="ml-auto opacity-30" />
+            <button onClick={() => setActiveTab('support')} className={`w-full px-5 py-4 flex items-center gap-4 hover:text-fk-blue border-t border-fk-divider transition-all ${activeTab === 'support' ? 'text-fk-blue bg-fk-bg/30 font-bold' : 'text-fk-muted'}`}>
+               <FiHelpCircle /> <span className="font-bold text-sm uppercase">Help Center</span>
             </button>
           </div>
           
@@ -164,15 +170,21 @@ export default function ProfilePage() {
         )}
 
         {activeTab === 'support' && (
+          <div className="bg-white p-4 md:p-8 shadow-fk rounded-sm animate-fk-fade">
+            <h2 className="text-lg font-bold text-fk-text mb-6 flex items-center gap-2"><FiHelpCircle className="text-fk-blue" /> Customer Support</h2>
+            <SupportSystem preselectedOrder={preselectedOrder} />
+          </div>
+        )}
+
+        {activeTab === 'returns' && (
           <div className="bg-white p-8 shadow-fk rounded-sm animate-fk-fade">
-            <h2 className="text-lg font-bold text-fk-text mb-4 flex items-center gap-2"><FiHelpCircle className="text-fk-blue" /> Customer Support</h2>
-            <div className="p-10 text-center border-2 border-dashed border-fk-divider rounded-xl">
-               <div className="w-16 h-16 bg-fk-bg rounded-full flex items-center justify-center mx-auto mb-4 text-fk-blue"><FiHelpCircle size={32} /></div>
-               <h3 className="text-lg font-bold text-fk-text">How can we help you?</h3>
-               <p className="text-sm text-fk-muted mt-2 mb-8 max-w-sm mx-auto">Having trouble with an order or payment? Our support team is here for you 24/7.</p>
-               <button className="bg-fk-orange text-white px-8 py-3 rounded-sm font-black text-xs uppercase shadow-md hover:bg-orange-600 transition-all">Start Live Chat</button>
-               <p className="text-[10px] text-fk-muted mt-6 font-bold uppercase">Or Call us at: 1800-202-9898</p>
-            </div>
+             <h2 className="text-lg font-bold text-fk-text mb-6 flex items-center gap-2"><FiRefreshCw className="text-fk-blue" /> Returns & Refunds</h2>
+             <div className="p-12 text-center border-2 border-dashed border-fk-divider rounded-2xl">
+                <div className="w-16 h-16 bg-fk-bg rounded-full flex items-center justify-center mx-auto mb-4 text-fk-muted"><FiRefreshCw size={32} /></div>
+                <h3 className="text-lg font-bold text-fk-text">Manage your returns</h3>
+                <p className="text-sm text-fk-muted mt-2 mb-8 max-w-sm mx-auto">To initiate a return, go to your 'My Orders' section and select the delivered order you wish to return.</p>
+                <button onClick={() => window.location.href = '/orders'} className="btn-fk-primary px-10">Go to My Orders</button>
+             </div>
           </div>
         )}
 

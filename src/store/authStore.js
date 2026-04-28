@@ -39,6 +39,7 @@ const useAuthStore = create((set, get) => ({
   isAdmin: () => get().user?.role === 'super_admin',
   isSeller: () => get().user?.role === 'seller',
   isCustomer: () => get().user?.role === 'customer',
+  isDeliveryPartner: () => get().user?.role === 'delivery_partner',
 }));
 
 export default useAuthStore;

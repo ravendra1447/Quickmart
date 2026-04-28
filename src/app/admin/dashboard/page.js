@@ -142,7 +142,12 @@ export default function AdminDashboard() {
                   <div key={o.id} className="flex items-center justify-between p-2 bg-dark-50 rounded-xl">
                     <div>
                       <p className="text-sm font-bold text-dark-800">{o.order_number}</p>
-                      <p className="text-xs text-dark-500">{o.user?.name || 'Customer'}</p>
+                      <p className="text-[10px] text-dark-500 font-bold uppercase">{o.user?.name || 'Customer'}</p>
+                      {o.delivery?.partner && (
+                         <div className="flex items-center gap-1 mt-1 text-[9px] font-black text-fb-blue uppercase">
+                            <FiTruck size={10} /> {o.delivery.partner.name || o.delivery.partner.user?.name || 'Assigned'}
+                         </div>
+                      )}
                     </div>
                     <div className="text-right">
                       <p className="text-sm font-bold text-dark-900">₹{parseFloat(o.total).toFixed(0)}</p>
