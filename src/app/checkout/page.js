@@ -79,7 +79,8 @@ export default function CheckoutPage() {
   const removeCoupon = () => { setAppliedCoupon(null); setCouponCode(''); };
 
   const discount = appliedCoupon?.discount || 0;
-  const finalTotal = Math.max(0, subtotal + deliveryFee - discount);
+  const platformFee = 15;
+  const finalTotal = Math.max(0, subtotal + deliveryFee + platformFee - discount);
 
   const handleOrder = async (e) => {
     e.preventDefault();
@@ -123,13 +124,18 @@ export default function CheckoutPage() {
   if (!user) return <div className="text-center py-20"><p className="text-lg">Please login to checkout</p></div>;
 
   return (
-    <div className="min-h-screen bg-[#f8f9fa] pb-20">
-      <div className="bg-white border-b border-dark-100 py-6 mb-8">
+    <div className="min-h-screen bg-[#f8f9fa] pb-20 -mt-16 sm:-mt-16">
+      <div className="bg-white border-b border-dark-100 py-3 sm:py-6 mb-4 sm:mb-8 sticky top-0 z-20 shadow-sm">
         <div className="max-w-6xl mx-auto px-4 flex items-center justify-between">
-          <h1 className="text-2xl font-black text-[#212121] tracking-tight flex items-center gap-2">
-            <span className="w-10 h-10 rounded-xl bg-[#fb641b] flex items-center justify-center text-white"><FiShield size={20} /></span>
-            Checkout
-          </h1>
+          <div className="flex items-center gap-3">
+            <button onClick={() => router.push('/cart')} className="p-2 -ml-2 hover:bg-slate-100 rounded-full transition-colors md:hidden">
+               <FiArrowRight className="rotate-180" size={20} />
+            </button>
+            <h1 className="text-xl sm:text-2xl font-black text-[#212121] tracking-tight flex items-center gap-2">
+              <span className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-[#fb641b] flex items-center justify-center text-white"><FiShield size={18} /></span>
+              Checkout
+            </h1>
+          </div>
           <div className="hidden md:flex items-center gap-8">
             <div className="flex items-center gap-2 text-sm font-bold text-[#fb641b]"><span className="w-6 h-6 rounded-full bg-[#fb641b] text-white flex items-center justify-center text-xs">1</span> Address</div>
             <div className="w-10 h-[2px] bg-dark-200"></div>
@@ -137,17 +143,23 @@ export default function CheckoutPage() {
             <div className="w-10 h-[2px] bg-dark-200"></div>
             <div className="flex items-center gap-2 text-sm font-bold text-dark-400"><span className="w-6 h-6 rounded-full bg-dark-200 text-white flex items-center justify-center text-xs">3</span> Payment</div>
           </div>
+          {/* Mobile Steps indicator */}
+          <div className="md:hidden flex items-center gap-1">
+             <div className="w-6 h-1 rounded-full bg-[#fb641b]"></div>
+             <div className="w-2 h-1 rounded-full bg-slate-200"></div>
+             <div className="w-2 h-1 rounded-full bg-slate-200"></div>
+          </div>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4">
-        <form onSubmit={handleOrder} className="grid lg:grid-cols-12 gap-8 items-start">
+      <div className="max-w-6xl mx-auto px-0 sm:px-4">
+        <form onSubmit={handleOrder} className="grid lg:grid-cols-12 gap-0 sm:gap-8 items-start">
           <div className="lg:col-span-8 space-y-6">
             
             {/* Step 1: Address */}
-            <div className="bg-white rounded-3xl shadow-sm border border-dark-100 overflow-hidden">
-              <div className="p-6 border-b border-dark-50 bg-dark-50/50 flex items-center justify-between">
-                <h2 className="text-lg font-bold text-dark-800 flex items-center gap-3">
+            <div className="bg-white sm:rounded-3xl shadow-sm border-y sm:border border-dark-100 overflow-hidden">
+              <div className="p-4 sm:p-6 border-b border-dark-50 bg-dark-50/50 flex items-center justify-between">
+                <h2 className="text-base sm:text-lg font-bold text-dark-800 flex items-center gap-3">
                   <FiMapPin className="text-[#fb641b]" /> 1. Delivery Address
                 </h2>
                 {addresses.length > 0 && (
@@ -168,10 +180,10 @@ export default function CheckoutPage() {
                             <FiCheck size={14} />
                           </div>
                         )}
-                        <p className="text-xs font-black text-[#fb641b] uppercase tracking-widest mb-2">{a.label}</p>
-                        <p className="font-bold text-[#212121] mb-1">{a.full_name}</p>
-                        <p className="text-sm text-dark-500 mb-2 flex items-center gap-1"><FiPhone size={12} /> {a.phone}</p>
-                        <p className="text-sm text-dark-600 leading-relaxed line-clamp-2">{a.address_line}, {a.city}, {a.state} - {a.pincode}</p>
+                        <p className="text-[10px] font-black text-[#fb641b] uppercase tracking-widest mb-1">{a.label}</p>
+                        <p className="font-bold text-sm text-[#212121] mb-0.5">{a.full_name}</p>
+                        <p className="text-xs text-dark-500 mb-2 flex items-center gap-1"><FiPhone size={10} /> {a.phone}</p>
+                        <p className="text-xs text-dark-600 leading-relaxed line-clamp-2">{a.address_line}, {a.city}, {a.state} - {a.pincode}</p>
                       </div>
                     ))}
                   </div>
@@ -261,32 +273,32 @@ export default function CheckoutPage() {
             </div>
 
             {/* Step 2: Delivery Type */}
-            <div className="bg-white rounded-3xl shadow-sm border border-dark-100 overflow-hidden">
-              <div className="p-6 border-b border-dark-50 bg-dark-50/50">
-                <h2 className="text-lg font-bold text-dark-800 flex items-center gap-3">
+            <div className="bg-white sm:rounded-3xl shadow-sm border-y sm:border border-dark-100 overflow-hidden">
+              <div className="p-4 sm:p-6 border-b border-dark-50 bg-dark-50/50">
+                <h2 className="text-base sm:text-lg font-bold text-dark-800 flex items-center gap-3">
                   <FiTruck className="text-[#fb641b]" /> 2. Delivery Method
                 </h2>
               </div>
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 <div className="flex flex-col sm:flex-row gap-4">
                   <button type="button" onClick={() => setIsScheduled(false)} 
-                    className={`flex-1 p-6 rounded-2xl border-2 text-left transition-all ${!isScheduled ? 'border-[#fb641b] bg-primary-50/30' : 'border-dark-100 hover:border-dark-200'}`}>
+                    className={`flex-1 p-4 sm:p-6 rounded-2xl border-2 text-left transition-all ${!isScheduled ? 'border-[#fb641b] bg-primary-50/30' : 'border-dark-100 hover:border-dark-200'}`}>
                     <div className="flex items-center justify-between mb-2">
-                       <span className="text-2xl">⚡</span>
+                       <span className="text-xl sm:text-2xl">⚡</span>
                        {!isScheduled && <FiCheck className="text-[#fb641b]" />}
                     </div>
-                    <p className="font-black text-[#212121]">Standard Delivery</p>
-                    <p className="text-sm text-dark-500 mt-1">Arriving by {new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })}</p>
+                    <p className="font-bold text-sm sm:text-base text-[#212121]">Standard</p>
+                    <p className="text-[10px] sm:text-sm text-dark-500 mt-1">Delivery by {new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric' })}</p>
                   </button>
                   
                   <button type="button" onClick={() => setIsScheduled(true)} 
-                    className={`flex-1 p-6 rounded-2xl border-2 text-left transition-all ${isScheduled ? 'border-primary-600 bg-primary-50/30' : 'border-dark-100 hover:border-dark-200'}`}>
+                    className={`flex-1 p-4 sm:p-6 rounded-2xl border-2 text-left transition-all ${isScheduled ? 'border-primary-600 bg-primary-50/30' : 'border-dark-100 hover:border-dark-200'}`}>
                     <div className="flex items-center justify-between mb-2">
-                       <span className="text-2xl">📅</span>
+                       <span className="text-xl sm:text-2xl">📅</span>
                        {isScheduled && <FiCheck className="text-primary-600" />}
                     </div>
-                    <p className="font-black text-dark-900">Schedule Order</p>
-                    <p className="text-sm text-dark-500 mt-1">Pick a specific time slot</p>
+                    <p className="font-bold text-sm sm:text-base text-dark-900">Schedule</p>
+                    <p className="text-[10px] sm:text-sm text-dark-500 mt-1">Pick a time slot</p>
                   </button>
                 </div>
                 
@@ -302,13 +314,13 @@ export default function CheckoutPage() {
             </div>
 
             {/* Step 3: Payment */}
-            <div className="bg-white rounded-3xl shadow-sm border border-dark-100 overflow-hidden">
-              <div className="p-6 border-b border-dark-50 bg-dark-50/50">
-                <h2 className="text-lg font-bold text-dark-800 flex items-center gap-3">
+            <div className="bg-white sm:rounded-3xl shadow-sm border-y sm:border border-dark-100 overflow-hidden">
+              <div className="p-4 sm:p-6 border-b border-dark-50 bg-dark-50/50">
+                <h2 className="text-base sm:text-lg font-bold text-dark-800 flex items-center gap-3">
                   <FiCreditCard className="text-[#fb641b]" /> 3. Payment Option
                 </h2>
               </div>
-              <div className="p-6 space-y-4">
+              <div className="p-4 sm:p-6 space-y-4">
                 {[
                   { key: 'cod', label: 'Cash on Delivery (COD)', icon: '💵', desc: 'Pay with cash or UPI at your doorstep' },
                   { key: 'online', label: 'Online Payment / UPI', icon: '📱', desc: 'UPI, Cards, Net Banking via Stripe' }
@@ -375,6 +387,7 @@ export default function CheckoutPage() {
                 <div className="space-y-3 pt-6 border-t border-dark-100">
                   <div className="flex justify-between text-sm"><span className="text-dark-500 font-medium">Subtotal</span><span className="font-bold text-dark-900">₹{subtotal.toFixed(0)}</span></div>
                   <div className="flex justify-between text-sm"><span className="text-dark-500 font-medium">Delivery</span><span className={`font-bold ${deliveryFee === 0 ? 'text-green-600' : 'text-dark-900'}`}>{deliveryFee === 0 ? 'FREE' : `₹${deliveryFee}`}</span></div>
+                  <div className="flex justify-between text-sm"><span className="text-dark-500 font-medium">Platform Fee</span><span className="font-bold text-dark-900">₹15</span></div>
                   {discount > 0 && <div className="flex justify-between text-sm"><span className="text-dark-500 font-medium">Discount</span><span className="font-bold text-green-600">-₹{discount.toFixed(0)}</span></div>}
                   
                   <div className="pt-4 border-t border-dark-100 flex justify-between items-end">
@@ -392,8 +405,20 @@ export default function CheckoutPage() {
                   </div>
                 )}
 
+                {/* Mobile Fixed Bottom Bar */}
+                <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-dark-100 p-4 z-[50] flex items-center justify-between shadow-[0_-10px_20px_rgba(0,0,0,0.05)]">
+                   <div>
+                      <p className="text-[10px] font-black text-dark-400 uppercase tracking-widest leading-none mb-1">To Pay</p>
+                      <p className="text-xl font-black text-[#fb641b]">₹{finalTotal.toFixed(0)}</p>
+                   </div>
+                   <button type="submit" disabled={loading || items.length === 0} 
+                     className={`px-8 py-3.5 rounded-xl font-black text-sm uppercase shadow-lg transition-all ${loading ? 'bg-gray-400' : 'bg-[#fb641b] text-white active:scale-95'}`}>
+                      {loading ? 'Processing...' : 'Place Order'}
+                   </button>
+                </div>
+
                 <button type="submit" disabled={loading || items.length === 0} 
-                  className={`w-full mt-8 py-5 rounded-3xl font-black text-lg shadow-xl transition-all flex items-center justify-center gap-3 ${loading ? 'bg-gray-400' : 'bg-[#fb641b] hover:bg-[#e65a18] text-white shadow-orange-200 active:scale-[0.98]'}`}>
+                  className={`hidden md:flex w-full mt-8 py-5 rounded-3xl font-black text-lg shadow-xl transition-all items-center justify-center gap-3 ${loading ? 'bg-gray-400' : 'bg-[#fb641b] hover:bg-[#e65a18] text-white shadow-orange-200 active:scale-[0.98]'}`}>
                   {loading ? (
                     <><div className="w-5 h-5 border-3 border-white/30 border-t-white rounded-full animate-spin"></div> Processing...</>
                   ) : (
@@ -420,6 +445,8 @@ export default function CheckoutPage() {
           </div>
         </form>
       </div>
+      {/* Spacer for mobile fixed bar */}
+      <div className="h-24 md:hidden"></div>
 
       <style jsx>{`
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }

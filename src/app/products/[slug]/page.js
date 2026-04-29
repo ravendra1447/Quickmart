@@ -90,7 +90,7 @@ export default function ProductDetailPage() {
   } catch (e) { productImages = []; }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 animate-fade-in">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-28 md:pt-14 animate-fade-in">
       <Link href="/products" className="inline-flex items-center gap-3 text-dark-400 hover:text-[#fb641b] text-xs font-black uppercase tracking-widest mb-10 transition-all group">
         <div className="w-8 h-8 rounded-full border border-dark-100 flex items-center justify-center group-hover:bg-dark-50 transition-all"><FiArrowLeft /></div>
         Back to Products
@@ -226,11 +226,21 @@ export default function ProductDetailPage() {
                </div>
 
                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <button onClick={handleAdd} className="w-full py-5 px-8 rounded-2xl border-2 border-dark-100 text-dark-700 font-black text-sm uppercase hover:bg-dark-50 hover:border-dark-200 transition-all active:scale-95 flex items-center justify-center gap-3">
+                  <button onClick={handleAdd} className="hidden sm:flex w-full py-5 px-8 rounded-2xl border-2 border-dark-100 text-dark-700 font-black text-sm uppercase hover:bg-dark-50 hover:border-dark-200 transition-all active:scale-95 items-center justify-center gap-3">
                     <FiShoppingCart size={18} /> Add to Cart
                   </button>
-                  <button onClick={handleBuyNow} className="w-full py-5 px-8 rounded-2xl bg-[#fb641b] text-white font-black text-sm uppercase shadow-2xl shadow-orange-100 hover:bg-[#e65a18] transition-all active:scale-95">
+                  <button onClick={handleBuyNow} className="hidden sm:block w-full py-5 px-8 rounded-2xl bg-[#fb641b] text-white font-black text-sm uppercase shadow-2xl shadow-orange-100 hover:bg-[#e65a18] transition-all active:scale-95">
                     Buy It Now
+                  </button>
+               </div>
+
+               {/* Mobile Fixed Action Bar */}
+               <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-dark-100 p-4 z-50 grid grid-cols-2 gap-3 shadow-[0_-10px_20px_rgba(0,0,0,0.05)]">
+                  <button onClick={handleAdd} className="w-full py-3.5 rounded-xl border-2 border-dark-100 text-dark-700 font-black text-xs uppercase active:scale-95 flex items-center justify-center gap-2">
+                    <FiShoppingCart size={16} /> Cart
+                  </button>
+                  <button onClick={handleBuyNow} className="w-full py-3.5 rounded-xl bg-[#fb641b] text-white font-black text-xs uppercase shadow-lg active:scale-95">
+                    Buy Now
                   </button>
                </div>
             </div>
@@ -260,6 +270,8 @@ export default function ProductDetailPage() {
           </div>
         </div>
       </div>
+      {/* Spacer for mobile fixed bar */}
+      <div className="h-24 sm:hidden"></div>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { FiArrowRight, FiShoppingCart } from 'react-icons/fi';
+import { FiArrowRight, FiShoppingCart, FiZap } from 'react-icons/fi';
 import { productAPI, hyperlocalAPI, getImageUrl } from '@/lib/api';
 import useAuthStore from '@/store/authStore';
 import useCartStore from '@/store/cartStore';
@@ -189,9 +189,9 @@ export default function HomePage() {
                 <div className="mt-4 grid grid-cols-2 gap-2 w-full">
                   <button 
                     onClick={(e) => { e.preventDefault(); handleAddToCart(product.id); }}
-                    className="flex items-center justify-center py-2.5 rounded-lg border-2 border-dark-100 text-dark-700 font-black text-[9px] sm:text-[10px] uppercase hover:bg-dark-50 hover:border-dark-200 transition-all"
+                    className="flex items-center justify-center py-2.5 rounded-lg border-2 border-slate-100 text-slate-700 font-black text-[9px] sm:text-[10px] uppercase hover:bg-slate-50 transition-all"
                   >
-                    + Cart
+                    <FiShoppingCart className="mr-1" size={12} /> Cart
                   </button>
                   <button 
                     onClick={async (e) => { 
@@ -199,9 +199,9 @@ export default function HomePage() {
                       const ok = await handleAddToCart(product.id);
                       if (ok) window.location.href='/checkout'; 
                     }}
-                    className="flex items-center justify-center py-2.5 rounded-lg bg-[#fb641b] text-white font-black text-[9px] sm:text-[10px] uppercase shadow-lg shadow-orange-100 hover:bg-[#e65a18] hover:shadow-orange-200 transition-all"
+                    className="flex items-center justify-center py-2.5 rounded-lg bg-[#fb641b] text-white font-black text-[9px] sm:text-[10px] uppercase hover:bg-[#e65a18] shadow-lg shadow-orange-100 transition-all"
                   >
-                    Buy Now
+                    <FiZap className="mr-1" size={12} /> Buy
                   </button>
                 </div>
               </div>

@@ -6,11 +6,28 @@ const useAuthStore = create((set, get) => ({
   token: null,
   isLoading: true,
 
-  initialize: () => {
+  initialize: async () => {
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('token');
       const user = JSON.parse(localStorage.getItem('user') || 'null');
-      set({ token, user, isLoading: false });
+      
+      // Initial set from localStorage for fast UI
+      set({ token, user, isLoading: !!token });
+
+      // If we have a token, fetch fresh user data to stay in sync
+      if (token) {
+        try {
+          const res = await authAPI.getMe();
+          localStorage.setItem('user', JSON.stringify(res.data));
+          set({ user: res.data, isLoading: false });
+        } catch (err) {
+          console.error("Auth initialization failed:", err);
+          // If token is invalid/expired, we might want to logout, but for now just stop loading
+          set({ isLoading: false });
+        }
+      } else {
+        set({ isLoading: false });
+      }
     }
   },
 

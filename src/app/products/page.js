@@ -3,7 +3,7 @@ import { Suspense } from 'react';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { FiFilter, FiShoppingCart } from 'react-icons/fi';
+import { FiFilter, FiShoppingCart, FiZap } from 'react-icons/fi';
 import { productAPI, getImageUrl } from '@/lib/api';
 import useAuthStore from '@/store/authStore';
 import useCartStore from '@/store/cartStore';
@@ -45,42 +45,87 @@ function ProductsContent() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-28 md:pt-14 animate-fade-in">
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-dark-900">Products</h1>
-          <p className="text-dark-500 mt-1">{total} products found</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button onClick={() => setShowFilters(!showFilters)} className="sm:hidden btn-secondary !py-2 !px-4 text-sm flex items-center gap-2">
-            <FiFilter /> Filters
-          </button>
-          <select value={filters.sort} onChange={(e) => setFilters({ ...filters, sort: e.target.value, page: 1 })}
-            className="input-field !w-auto !py-2 text-sm">
-            <option value="newest">Newest</option>
-            <option value="price_asc">Price: Low to High</option>
-            <option value="price_desc">Price: High to Low</option>
-            <option value="name">Name</option>
-          </select>
+    <div className="min-h-screen bg-[#f7f9fc] overflow-x-hidden">
+      {/* Premium Page Header */}
+      <div className="bg-white border-b border-slate-200 pt-24 md:pt-20 pb-4 sm:pb-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+              <nav className="flex items-center gap-2 text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
+                <Link href="/" className="hover:text-fk-blue transition-colors">Home</Link>
+                <span>/</span>
+                <span className="text-slate-900">Products</span>
+              </nav>
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-800 tracking-tight">
+                {filters.category ? filters.category.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : 'Our Collection'}
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-400 mt-1 font-medium italic">Discover {total} premium items</p>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <div className="hidden sm:flex items-center bg-slate-50 rounded-xl px-4 py-1.5 border border-slate-200">
+                <FiFilter className="text-slate-400" size={14} />
+                <select 
+                  value={filters.sort} 
+                  onChange={(e) => setFilters({ ...filters, sort: e.target.value, page: 1 })}
+                  className="bg-transparent border-none text-xs font-bold text-slate-600 focus:ring-0 cursor-pointer pl-2 pr-8"
+                >
+                  <option value="newest">Sort: Newest First</option>
+                  <option value="price_asc">Price: Low to High</option>
+                  <option value="price_desc">Price: High to Low</option>
+                  <option value="name">Name: A to Z</option>
+                </select>
+              </div>
+              <button 
+                onClick={() => setShowFilters(!showFilters)} 
+                className="sm:hidden w-full flex items-center justify-center gap-2 bg-[#fb641b] text-white px-5 py-2.5 rounded-lg font-bold text-xs shadow-md active:scale-95 transition-all"
+              >
+                <FiFilter /> Filters
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+
       <div className="flex gap-8">
         {/* Sidebar */}
-        <aside className={`${showFilters ? 'block' : 'hidden'} sm:block w-full sm:w-56 flex-shrink-0`}>
-          <div className="glass-card p-5 sticky top-24">
-            <h3 className="font-bold text-dark-800 mb-4">Categories</h3>
-            <div className="space-y-1">
-              <button onClick={() => setFilters({ ...filters, category: '', page: 1 })}
-                className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${!filters.category ? 'bg-primary-50 text-primary-600 font-semibold' : 'text-dark-600 hover:bg-dark-100'}`}>
-                All Categories
-              </button>
-              {categories.map((cat) => (
-                <button key={cat.id} onClick={() => setFilters({ ...filters, category: cat.slug, page: 1 })}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${filters.category === cat.slug ? 'bg-primary-50 text-primary-600 font-semibold' : 'text-dark-600 hover:bg-dark-100'}`}>
-                  {cat.name}
+        <aside className={`${showFilters ? 'fixed inset-0 z-[100] bg-white p-6' : 'hidden'} sm:block w-full sm:w-64 flex-shrink-0 transition-all`}>
+          <div className="sm:sticky sm:top-24 space-y-8">
+            <div className="sm:hidden flex items-center justify-between mb-8">
+               <h2 className="text-2xl font-black">Filters</h2>
+               <button onClick={() => setShowFilters(false)} className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center"><FiFilter /></button>
+            </div>
+
+            <div>
+              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Browse Categories</h3>
+              <div className="space-y-1">
+                <button 
+                  onClick={() => { setFilters({ ...filters, category: '', page: 1 }); setShowFilters(false); }}
+                  className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition-all ${!filters.category ? 'bg-orange-50 text-[#fb641b] shadow-sm border border-orange-100' : 'text-slate-600 hover:bg-slate-100'}`}
+                >
+                  All Products
                 </button>
-              ))}
+                {categories.map((cat) => (
+                  <button 
+                    key={cat.id} 
+                    onClick={() => { setFilters({ ...filters, category: cat.slug, page: 1 }); setShowFilters(false); }}
+                    className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition-all ${filters.category === cat.slug ? 'bg-orange-50 text-[#fb641b] shadow-sm border border-orange-100' : 'text-slate-600 hover:bg-slate-100'}`}
+                  >
+                    {cat.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="hidden sm:block p-6 bg-blue-50 rounded-3xl text-blue-900 border border-blue-100 relative overflow-hidden group">
+               <div className="relative z-10">
+                  <p className="text-[8px] font-black uppercase tracking-widest text-blue-400 mb-2">Special Offer</p>
+                  <h4 className="font-black text-lg mb-2">Free Delivery</h4>
+                  <p className="text-[10px] text-blue-700/70 leading-relaxed font-medium">On all orders above ₹500. Shop now and save more!</p>
+               </div>
+               <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-blue-100 rounded-full blur-2xl group-hover:bg-blue-200 transition-all"></div>
             </div>
           </div>
         </aside>
@@ -88,7 +133,7 @@ function ProductsContent() {
         {/* Products Grid */}
         <div className="flex-1">
           {loading ? (
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {[...Array(6)].map((_, i) => (
                 <div key={i} className="glass-card p-4 animate-pulse">
                   <div className="aspect-square bg-dark-200 rounded-xl mb-4"></div>
@@ -99,7 +144,7 @@ function ProductsContent() {
             </div>
           ) : (
             <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
               {products.map((product) => {
                 let productImages = [];
                 try {
@@ -117,70 +162,55 @@ function ProductsContent() {
                 };
 
                 return (
-                  <div key={product.id} className="bg-white rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_10px_10px_-5px_rgba(0,0,0,0.04)] transition-all duration-300 group overflow-hidden flex flex-col h-full border border-dark-50">
-                    <Link href={`/products/${product.slug}`} className="relative flex-shrink-0 block bg-dark-50/30">
-                      <div className="aspect-square flex items-center justify-center relative overflow-hidden p-4">
-                        {mainImage ? (
-                          <img 
-                            src={getImageUrl(mainImage)} 
-                            className="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-700 ease-in-out" 
-                            alt={product.name} 
-                            onError={(e) => {
-                              e.target.onerror = null;
-                              e.target.src = 'https://cdn-icons-png.flaticon.com/512/3081/3081840.png';
-                            }}
-                          />
-                        ) : (
-                          <div className="flex flex-col items-center gap-3 opacity-10 group-hover:scale-110 transition-transform duration-700">
-                             <FiShoppingCart size={60} />
-                             <span className="text-[10px] font-black uppercase tracking-widest">No Image</span>
-                          </div>
-                        )}
-                        
-                        {/* Badges */}
-                        <div className="absolute top-3 left-3 flex flex-col gap-2">
-                          {product.compare_at_price && product.compare_at_price > product.price && (
-                            <span className="px-2.5 py-1 bg-red-500 text-white text-[10px] font-black rounded-lg shadow-lg">
-                              {Math.round(((product.compare_at_price - product.price) / product.compare_at_price) * 100)}% OFF
-                            </span>
-                          )}
-                          {product.is_featured && (
-                            <span className="px-2.5 py-1 bg-[#fb641b] text-white text-[10px] font-black rounded-lg shadow-lg">Featured</span>
-                          )}
+                  <div key={product.id} className="bg-white rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition-all duration-300 flex flex-col h-full overflow-hidden group">
+                    <Link href={`/products/${product.slug}`} className="relative block aspect-[4/5] sm:aspect-square bg-slate-50 overflow-hidden">
+                      {mainImage ? (
+                        <img 
+                          src={getImageUrl(mainImage)} 
+                          className="w-full h-full object-contain p-2 sm:p-4 group-hover:scale-105 transition-transform duration-500" 
+                          alt={product.name} 
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center opacity-10">
+                           <FiShoppingCart size={40} />
                         </div>
-                      </div>
+                      )}
+                      
+                      {product.compare_at_price > product.price && (
+                        <div className="absolute top-2 left-2 bg-rose-500 text-white text-[8px] sm:text-[10px] font-black px-1.5 py-0.5 rounded shadow-sm">
+                           {Math.round(((product.compare_at_price - product.price) / product.compare_at_price) * 100)}% OFF
+                        </div>
+                      )}
                     </Link>
 
-                    <div className="p-5 flex flex-col flex-1">
-                      <div className="flex-1 mb-4">
-                        <p className="text-[10px] text-[#fb641b] font-black uppercase tracking-widest mb-1">{product.category?.name}</p>
+                    <div className="p-2 sm:p-4 flex flex-col flex-1">
+                      <div className="flex-1">
+                        <p className="text-[8px] sm:text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">{product.category?.name}</p>
                         <Link href={`/products/${product.slug}`}>
-                          <h3 className="text-sm font-bold text-dark-900 line-clamp-2 hover:text-[#fb641b] transition-colors leading-snug">
+                          <h3 className="text-xs sm:text-sm font-bold text-slate-800 line-clamp-2 hover:text-[#fb641b] transition-colors leading-tight min-h-[2.5rem]">
                             {product.name}
                           </h3>
                         </Link>
-                        <div className="mt-3 flex items-center gap-3">
-                          <span className="text-xl font-black text-dark-900">₹{Math.round(product.price)}</span>
-                          {product.compare_at_price && product.compare_at_price > product.price && (
-                            <span className="text-xs text-dark-400 line-through font-bold">₹{Math.round(product.compare_at_price)}</span>
+                        <div className="mt-2 flex items-center gap-1.5 sm:gap-2">
+                          <span className="text-sm sm:text-lg font-black text-slate-900">₹{Math.round(product.price)}</span>
+                          {product.compare_at_price > product.price && (
+                            <span className="text-[10px] sm:text-xs text-slate-400 line-through">₹{Math.round(product.compare_at_price)}</span>
                           )}
                         </div>
                       </div>
                       
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-2 gap-1.5 sm:gap-3 mt-4">
                         <button 
                           onClick={() => handleAddToCart(product.id)} 
-                          disabled={product.stock === 0}
-                          className="flex items-center justify-center py-3 rounded-xl border-2 border-dark-100 text-dark-700 font-black text-[10px] uppercase hover:bg-dark-50 hover:border-dark-200 transition-all disabled:opacity-50"
+                          className="flex items-center justify-center py-2 sm:py-2.5 rounded-lg border border-slate-200 text-slate-700 font-bold text-[9px] sm:text-xs hover:bg-slate-50 transition-all"
                         >
-                          + Cart
+                          <FiShoppingCart className="mr-1 sm:mr-2" size={12} /> Cart
                         </button>
                         <button 
                           onClick={handleBuyNow} 
-                          disabled={product.stock === 0}
-                          className="flex items-center justify-center py-3 rounded-xl bg-[#fb641b] text-white font-black text-[10px] uppercase shadow-lg shadow-orange-100 hover:bg-[#e65a18] hover:shadow-orange-200 transition-all disabled:opacity-50"
+                          className="flex items-center justify-center py-2 sm:py-2.5 rounded-lg bg-[#fb641b] text-white font-bold text-[9px] sm:text-xs hover:bg-[#e65a18] transition-all shadow-sm shadow-orange-100"
                         >
-                          Buy Now
+                          <FiZap className="mr-1 sm:mr-2" size={12} /> Buy
                         </button>
                       </div>
                     </div>
@@ -211,6 +241,7 @@ function ProductsContent() {
             </>
           )}
         </div>
+        </div>
       </div>
     </div>
   );
@@ -220,7 +251,7 @@ export default function ProductsPage() {
   return (
     <Suspense fallback={
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="glass-card p-4 animate-pulse">
               <div className="aspect-square bg-dark-200 rounded-xl mb-4"></div>

@@ -32,7 +32,7 @@ export default function Navbar() {
   const itemCount = mounted ? (cartStore.items?.length || 0) : 0;
   const handleLogout = () => { authStore.logout(); setUser(null); setIsSidebarOpen(false); window.location.href = '/'; };
 
-  if (pathname?.startsWith('/admin') || pathname?.startsWith('/seller')) return null;
+  if (pathname?.startsWith('/admin') || pathname?.startsWith('/seller') || pathname === '/checkout') return null;
 
   return (
     <>
@@ -175,14 +175,14 @@ export default function Navbar() {
 
         </div>
 
-        {/* Brand New Location Bar (Flipkart Style) */}
-        <div className="bg-[#f0f2f5] border-b border-dark-50 py-1.5 hidden md:block">
+        {/* Brand New Location Bar (Flipkart Style) - Now visible on mobile */}
+        <div className="bg-[#f0f2f5] border-b border-dark-50 py-1.5">
            <div className="max-w-[1248px] mx-auto px-4 flex items-center gap-2 text-[#212121]">
               <FiMapPin className="text-dark-500" size={14} />
-              <span className="text-[11px] font-bold">Deliver to</span>
-              <button onClick={() => window.location.href='/checkout'} className="text-[11px] font-black hover:text-fk-blue flex items-center gap-1 transition-colors">
+              <span className="text-[10px] sm:text-[11px] font-bold">Deliver to</span>
+              <button onClick={() => window.location.href='/checkout'} className="text-[10px] sm:text-[11px] font-black hover:text-fk-blue flex items-center gap-1 transition-colors truncate max-w-[200px]">
                  {user?.addresses?.[0] ? `${user.addresses[0].city} ${user.addresses[0].pincode}` : 'Select delivery location'}
-                 <FiChevronDown size={12} />
+                 <FiChevronDown size={12} className="flex-shrink-0" />
               </button>
            </div>
         </div>
@@ -201,7 +201,7 @@ export default function Navbar() {
             <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-sm font-bold">
               {user ? user.name?.[0]?.toUpperCase() : <FiUser />}
             </div>
-            <span className="font-bold text-sm">{user ? `Hello, ${user.name.split(' ')[0]}` : 'Login & Signup'}</span>
+            <span className="font-bold text-sm">{user ? `Hello, ${user.name?.split(' ')[0] || 'User'}` : 'Login & Signup'}</span>
           </div>
           <button onClick={() => setIsSidebarOpen(false)}><FiX size={20} /></button>
         </div>

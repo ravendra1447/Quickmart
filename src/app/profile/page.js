@@ -12,9 +12,17 @@ export default function ProfilePage() {
   const preselectedOrder = searchParams.get('order');
   const initialTab = searchParams.get('tab') || 'profile';
 
-  const { user, logout, setAuth } = useAuthStore();
+  const { user, logout, setAuth, isLoading, fetchUser } = useAuthStore();
   const [activeTab, setActiveTab] = useState(initialTab);
-  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!user && !isLoading) {
+      // Maybe try one more fetch if we have a token but no user
+      const token = localStorage.getItem('token');
+      if (token) fetchUser();
+    }
+  }, [user, isLoading, fetchUser]);
   
   // Forms
   const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
@@ -34,18 +42,18 @@ export default function ProfilePage() {
   const handlePasswordChange = async (e) => {
     e.preventDefault();
     if (passwordForm.newPassword !== passwordForm.confirmPassword) return toast.error('Passwords do not match');
-    setLoading(true);
+    setSaving(true);
     try {
       await authAPI.changePassword(passwordForm);
       toast.success('Password updated successfully!');
       setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
     } catch (err) { toast.error(err.message || 'Failed to update password'); }
-    setLoading(false);
+    setSaving(false);
   };
 
   const handleBankUpdate = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setSaving(true);
     try {
       const data = {
         upi_id: bankForm.upi_id,
@@ -55,12 +63,11 @@ export default function ProfilePage() {
           bank_name: bankForm.bank_name
         }
       };
-      // We'll use a generic update profile API here
       const res = await authAPI.updateProfile(data);
       setAuth(res.data, localStorage.getItem('token'));
       toast.success('Bank details updated successfully!');
     } catch (err) { toast.error(err.message || 'Update failed'); }
-    setLoading(false);
+    setSaving(false);
   };
 
   const handleLogout = () => { logout(); window.location.href = '/login'; };
@@ -68,10 +75,17 @@ export default function ProfilePage() {
   const inputClass = "w-full border-b border-fk-divider py-2 outline-none focus:border-fk-blue text-sm transition-all placeholder:text-fk-muted bg-transparent font-medium";
   const labelClass = "text-[10px] font-bold text-fk-muted uppercase tracking-wider mb-1 block";
 
+  if (isLoading) return (
+    <div className="min-h-[60vh] flex items-center justify-center p-6">
+      <div className="w-10 h-10 border-4 border-fk-blue border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  );
+
   if (!user) return (
-    <div className="min-h-[60vh] flex flex-col items-center justify-center p-6 text-center">
+    <div className="min-h-[60vh] flex flex-col items-center justify-center p-6 text-center animate-fk-fade">
       <div className="w-20 h-20 bg-fk-bg rounded-full flex items-center justify-center mb-4"><FiUser size={40} className="text-fk-muted" /></div>
       <h2 className="text-2xl font-bold text-fk-text">Please Login</h2>
+      <p className="text-sm text-fk-muted mt-2">Login to see your profile and manage orders</p>
       <button onClick={() => window.location.href = '/login'} className="btn-fk-primary px-12 mt-6">Login Now</button>
     </div>
   );
@@ -121,12 +135,45 @@ export default function ProfilePage() {
         {activeTab === 'profile' && (
           <div className="bg-white p-8 shadow-fk rounded-sm animate-fk-fade">
             <h2 className="text-lg font-bold text-fk-text mb-8">Personal Information</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8 max-w-2xl">
-               <div><label className={labelClass}>Full Name</label><input value={user.name} disabled className={inputClass} /></div>
-               <div><label className={labelClass}>Email Address</label><input value={user.email} disabled className={inputClass} /></div>
-               <div><label className={labelClass}>Phone Number</label><input value={user.phone || 'Not set'} disabled className={inputClass} /></div>
-               <div><label className={labelClass}>Account Role</label><input value={user.role?.replace('_', ' ')} disabled className={`${inputClass} uppercase text-[10px]`} /></div>
-            </div>
+            <form onSubmit={async (e) => {
+              e.preventDefault();
+              setSaving(true);
+              try {
+                const res = await authAPI.updateProfile({ name: user.name, phone: user.phone });
+                setAuth(res.data, localStorage.getItem('token'));
+                toast.success('Profile updated!');
+              } catch (err) { toast.error(err.message); }
+              setSaving(false);
+            }} className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8 max-w-2xl">
+               <div>
+                 <label className={labelClass}>Full Name</label>
+                 <input 
+                   value={user.name || ''} 
+                   onChange={e => setAuth({ ...user, name: e.target.value }, localStorage.getItem('token'))} 
+                   className={inputClass} 
+                   placeholder="Enter your full name"
+                 />
+               </div>
+               <div>
+                 <label className={labelClass}>Email Address</label>
+                 <input value={user.email} disabled className={`${inputClass} bg-slate-50 cursor-not-allowed`} />
+               </div>
+               <div>
+                 <label className={labelClass}>Phone Number</label>
+                 <input 
+                   value={user.phone || ''} 
+                   onChange={e => setAuth({ ...user, phone: e.target.value }, localStorage.getItem('token'))} 
+                   className={inputClass} 
+                   placeholder="Enter your phone number"
+                 />
+               </div>
+               <div><label className={labelClass}>Account Role</label><input value={user.role?.replace('_', ' ')} disabled className={`${inputClass} uppercase text-[10px] bg-slate-50`} /></div>
+               <div className="md:col-span-2 pt-4">
+                 <button type="submit" disabled={saving} className="btn-fk-primary px-12 py-3">
+                   {saving ? 'Updating...' : 'Save Profile Changes'}
+                 </button>
+               </div>
+            </form>
           </div>
         )}
 
@@ -151,7 +198,7 @@ export default function ProfilePage() {
                  <div><label className={labelClass}>IFSC Code</label><input placeholder="HDFC0001234" className={inputClass} value={bankForm.ifsc} onChange={e => setBankForm({...bankForm, ifsc: e.target.value})} /></div>
                </div>
 
-               <button type="submit" disabled={loading} className="btn-fk-primary px-12 py-3 mt-4">{loading ? 'Saving...' : 'Save Bank Details'}</button>
+               <button type="submit" disabled={saving} className="btn-fk-primary px-12 py-3 mt-4">{saving ? 'Saving...' : 'Save Bank Details'}</button>
             </form>
           </div>
         )}
@@ -164,7 +211,7 @@ export default function ProfilePage() {
                <div className="hidden md:block"></div>
                <div><label className={labelClass}>New Password</label><input type="password" className={inputClass} value={passwordForm.newPassword} onChange={e => setPasswordForm({...passwordForm, newPassword: e.target.value})} required /></div>
                <div><label className={labelClass}>Confirm New Password</label><input type="password" className={inputClass} value={passwordForm.confirmPassword} onChange={e => setPasswordForm({...passwordForm, confirmPassword: e.target.value})} required /></div>
-               <div className="md:col-span-2 pt-4"><button type="submit" disabled={loading} className="btn-fk-primary px-12 py-3">{loading ? 'Updating...' : 'Update Password'}</button></div>
+               <div className="md:col-span-2 pt-4"><button type="submit" disabled={saving} className="btn-fk-primary px-12 py-3">{saving ? 'Updating...' : 'Update Password'}</button></div>
             </form>
           </div>
         )}
