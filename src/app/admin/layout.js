@@ -34,24 +34,20 @@ export default function AdminLayout({ children }) {
   return (
     <div className="flex min-h-screen bg-dark-50 -mt-16 pt-0">
       {/* Sidebar */}
-<<<<<<< HEAD
-      <aside className={`fixed lg:sticky top-0 left-0 h-screen w-64 bg-white border-r border-dark-100 z-50 transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
-        <div className="p-6 border-b border-dark-100">
-=======
+
       <aside className={`fixed lg:sticky top-0 left-0 h-screen w-64 bg-white border-r border-dark-100 z-50 transform transition-transform duration-300 flex flex-col ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
         <div className="p-6 border-b border-dark-100 shrink-0">
->>>>>>> 70149791 (update by amit)
+
           <Link href="/admin/dashboard" className="flex items-center gap-2">
             <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white"><FiGrid /></div>
             <span className="text-lg font-bold text-dark-900">Admin Panel</span>
           </Link>
         </div>
 
-<<<<<<< HEAD
         <nav className="p-4 space-y-1">
 =======
         <nav className="p-4 space-y-1 overflow-y-auto flex-1 custom-scrollbar">
->>>>>>> 70149791 (update by amit)
+
           {links.map((l) => (
             <Link key={l.href} href={l.href} onClick={() => setSidebarOpen(false)}
               className={pathname === l.href ? 'sidebar-link-active' : 'sidebar-link'}>
@@ -60,7 +56,7 @@ export default function AdminLayout({ children }) {
           ))}
         </nav>
 
-<<<<<<< HEAD
+
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-dark-100">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold">{user?.name?.[0]}</div>
@@ -79,7 +75,7 @@ export default function AdminLayout({ children }) {
           <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 py-3 text-red-500 hover:bg-red-50 rounded-xl text-sm font-bold transition-all border border-transparent hover:border-red-100">
             <FiLogOut /> Logout
           </button>
->>>>>>> 70149791 (update by amit)
+
         </div>
       </aside>
 
