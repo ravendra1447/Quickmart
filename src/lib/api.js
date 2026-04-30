@@ -86,6 +86,7 @@ export const sellerAPI = {
   updateProduct: (id, data) => api.put(`/seller/products/${id}`, data, { headers: { 'Content-Type': 'multipart/form-data' } }),
   deleteProduct: (id) => api.delete(`/seller/products/${id}`),
   getOrders: (params) => api.get('/seller/orders', { params }),
+<<<<<<< HEAD
   updateOrderStatus: (id, data) => api.put(`/seller/orders/${id}/status`, data),
   getEarnings: () => api.get('/seller/earnings'),
   getStoreAreas: () => api.get('/seller/service-areas'),
@@ -94,6 +95,25 @@ export const sellerAPI = {
 };
 
 // Admin APIs
+=======
+  updateOrderStatus: (id, data) => api.put(`/seller/order-items/${id}/status`, data),
+  getEarnings: () => api.get('/seller/earnings'),
+  getStoreAreas: () => api.get('/seller/store-areas'),
+  addStoreArea: (data) => api.post('/seller/store-areas', data),
+  removeStoreArea: (id) => api.delete(`/seller/store-areas/${id}`),
+  // Delivery Boys
+  getDeliveryBoys: () => api.get('/seller/delivery-boys'),
+  createDeliveryBoy: (data) => api.post('/seller/delivery-boys', data),
+  toggleDeliveryBoyStatus: (id) => api.put(`/seller/delivery-boys/${id}/status`),
+  deleteDeliveryBoy: (id) => api.delete(`/seller/delivery-boys/${id}`),
+  // Cash Settlements
+  getCashSettlements: () => api.get('/seller/cash-settlements'),
+  confirmCashSettlement: (id) => api.put(`/seller/cash-settlements/${id}/confirm`),
+  // Order Assignment
+  assignOrder: (id, partnerId) => api.post(`/seller/orders/${id}/assign`, { partnerId }),
+};
+
+>>>>>>> 70149791 (update by amit)
 export const adminAPI = {
   getAnalytics: () => api.get('/admin/analytics'),
   getCategories: () => api.get('/admin/categories'),
@@ -163,6 +183,11 @@ export const deliveryAPI = {
   markReachedHub: (id) => api.put(`/delivery/assignments/${id}/reach-hub`),
   verifyOtp: (id, otp) => api.put(`/delivery/assignments/${id}/verify-otp`, { otp }),
   updateProfile: (data) => api.put('/delivery/profile', data),
+<<<<<<< HEAD
+=======
+  submitSettlement: (data) => api.post('/delivery/settlements', data),
+  getSettlements: () => api.get('/delivery/settlements'),
+>>>>>>> 70149791 (update by amit)
 };
 
 export const supportAPI = {
@@ -178,5 +203,26 @@ export const returnAPI = {
   getRequest: (id) => api.get(`/returns/${id}`),
 };
 
+<<<<<<< HEAD
 export default api;
 
+=======
+export const subscriptionAPI = {
+  // Seller APIs
+  getPlans: () => api.get('/seller/subscription/plans'),
+  getStatus: () => api.get('/seller/subscription/status'),
+  purchasePlan: (data) => api.post('/seller/subscription/purchase', data),
+  
+  // Admin APIs
+  getAdminPlans: () => api.get('/admin/subscriptions/plans'),
+  createPlan: (data) => api.post('/admin/subscriptions/plans', data),
+  updatePlan: (id, data) => api.put(`/admin/subscriptions/plans/${id}`, data),
+  deletePlan: (id) => api.delete(`/admin/subscriptions/plans/${id}`),
+  getSellerSubscriptions: () => api.get('/admin/subscriptions/history'),
+  approveSubscription: (id) => api.put(`/admin/subscriptions/${id}/approve`),
+  rejectSubscription: (id) => api.put(`/admin/subscriptions/${id}/reject`),
+};
+
+
+export default api;
+>>>>>>> 70149791 (update by amit)
