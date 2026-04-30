@@ -86,16 +86,7 @@ export const sellerAPI = {
   updateProduct: (id, data) => api.put(`/seller/products/${id}`, data, { headers: { 'Content-Type': 'multipart/form-data' } }),
   deleteProduct: (id) => api.delete(`/seller/products/${id}`),
   getOrders: (params) => api.get('/seller/orders', { params }),
-<<<<<<< HEAD
-  updateOrderStatus: (id, data) => api.put(`/seller/orders/${id}/status`, data),
-  getEarnings: () => api.get('/seller/earnings'),
-  getStoreAreas: () => api.get('/seller/service-areas'),
-  addStoreArea: (data) => api.post('/seller/service-areas', data),
-  removeStoreArea: (id) => api.delete(`/seller/service-areas/${id}`),
-};
 
-// Admin APIs
-=======
   updateOrderStatus: (id, data) => api.put(`/seller/order-items/${id}/status`, data),
   getEarnings: () => api.get('/seller/earnings'),
   getStoreAreas: () => api.get('/seller/store-areas'),
@@ -113,7 +104,7 @@ export const sellerAPI = {
   assignOrder: (id, partnerId) => api.post(`/seller/orders/${id}/assign`, { partnerId }),
 };
 
->>>>>>> 70149791 (update by amit)
+
 export const adminAPI = {
   getAnalytics: () => api.get('/admin/analytics'),
   getCategories: () => api.get('/admin/categories'),
@@ -183,11 +174,10 @@ export const deliveryAPI = {
   markReachedHub: (id) => api.put(`/delivery/assignments/${id}/reach-hub`),
   verifyOtp: (id, otp) => api.put(`/delivery/assignments/${id}/verify-otp`, { otp }),
   updateProfile: (data) => api.put('/delivery/profile', data),
-<<<<<<< HEAD
-=======
+
   submitSettlement: (data) => api.post('/delivery/settlements', data),
   getSettlements: () => api.get('/delivery/settlements'),
->>>>>>> 70149791 (update by amit)
+
 };
 
 export const supportAPI = {
@@ -203,10 +193,7 @@ export const returnAPI = {
   getRequest: (id) => api.get(`/returns/${id}`),
 };
 
-<<<<<<< HEAD
-export default api;
 
-=======
 export const subscriptionAPI = {
   // Seller APIs
   getPlans: () => api.get('/seller/subscription/plans'),
@@ -225,4 +212,4 @@ export const subscriptionAPI = {
 
 
 export default api;
->>>>>>> 70149791 (update by amit)
+
