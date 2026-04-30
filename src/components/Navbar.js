@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { 
   FiShoppingCart, FiSearch, FiChevronDown, FiUser, FiPackage, 
@@ -27,7 +28,7 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => { if (mounted) setUser(authStore.user); }, [mounted, authStore.user]);
-  useEffect(() => { if (mounted && authStore.user) cartStore.fetchCart(); }, [mounted, authStore.user]);
+  useEffect(() => { if (mounted && authStore.user) cartStore.fetchCart(); }, [mounted, authStore.user, cartStore]);
 
   const itemCount = mounted ? (cartStore.items?.length || 0) : 0;
   const handleLogout = () => { authStore.logout(); setUser(null); setIsSidebarOpen(false); window.location.href = '/'; };
@@ -229,7 +230,7 @@ export default function Navbar() {
                 onClick={() => setIsSidebarOpen(false)}
                 className="flex items-center gap-4 px-5 py-3 text-sm font-medium hover:bg-slate-50"
               >
-                <img src={cat.image_url || 'https://via.placeholder.com/24'} className="w-6 h-6 object-contain" alt={cat.name} />
+                <Image src={cat.image_url || 'https://via.placeholder.com/24'} className="w-6 h-6 object-contain" alt={cat.name} width={24} height={24} unoptimized />
                 {cat.name}
               </Link>
             ))}

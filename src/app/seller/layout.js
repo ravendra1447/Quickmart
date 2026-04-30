@@ -1,11 +1,9 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-<<<<<<< HEAD
-import { FiGrid, FiPackage, FiShoppingCart, FiDollarSign, FiUser, FiLogOut, FiMenu, FiSettings } from 'react-icons/fi';
-=======
-import { FiGrid, FiPackage, FiShoppingCart, FiDollarSign, FiUser, FiLogOut, FiMenu, FiSettings, FiCreditCard, FiTruck } from 'react-icons/fi';
->>>>>>> 70149791 (update by amit)
+
+import { FiCreditCard, FiDollarSign, FiGrid, FiLogOut, FiMenu, FiPackage, FiSettings, FiShoppingCart, FiTruck } from 'react-icons/fi';
+
 import useAuthStore from '@/store/authStore';
 import { useState } from 'react';
 
@@ -13,11 +11,10 @@ const links = [
   { href: '/seller/dashboard', label: 'Dashboard', icon: <FiGrid /> },
   { href: '/seller/products', label: 'Products', icon: <FiPackage /> },
   { href: '/seller/orders', label: 'Orders', icon: <FiShoppingCart /> },
-<<<<<<< HEAD
-=======
+
   { href: '/seller/delivery-boys', label: 'Delivery Boys', icon: <FiTruck /> },
   { href: '/seller/subscription', label: 'Subscription', icon: <FiCreditCard /> },
->>>>>>> 70149791 (update by amit)
+
   { href: '/seller/earnings', label: 'Earnings', icon: <FiDollarSign /> },
   { href: '/seller/settings', label: 'Store Settings', icon: <FiSettings /> },
 ];

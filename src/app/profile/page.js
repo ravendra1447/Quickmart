@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { FiUser, FiMail, FiPhone, FiLock, FiLogOut, FiShoppingBag, FiMapPin, FiCreditCard, FiHelpCircle, FiArrowRight, FiShield, FiRefreshCw } from 'react-icons/fi';
 import useAuthStore from '@/store/authStore';
 import { authAPI } from '@/lib/api';
@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 import SupportSystem from '@/components/SupportSystem';
 import { useSearchParams } from 'next/navigation';
 
-export default function ProfilePage() {
+function ProfileContent() {
   const searchParams = useSearchParams();
   const preselectedOrder = searchParams.get('order');
   const initialTab = searchParams.get('tab') || 'profile';
@@ -237,5 +237,13 @@ export default function ProfilePage() {
 
       </div>
     </div>
+  );
+}
+
+export default function ProfilePage() {
+  return (
+    <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center p-6"><div className="w-10 h-10 border-4 border-fk-blue border-t-transparent rounded-full animate-spin"></div></div>}>
+      <ProfileContent />
+    </Suspense>
   );
 }

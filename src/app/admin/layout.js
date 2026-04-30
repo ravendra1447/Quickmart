@@ -14,10 +14,9 @@ const links = [
   { href: '/admin/banners', label: 'Banners', icon: <FiImage /> },
   { href: '/admin/coupons', label: 'Coupons', icon: <FiPercent /> },
   { href: '/admin/delivery', label: 'Delivery', icon: <FiTruck /> },
-<<<<<<< HEAD
-=======
+
   { href: '/admin/subscriptions', label: 'Subscriptions', icon: <FiTag /> },
->>>>>>> 70149791 (update by amit)
+
   { href: '/admin/settings', label: 'Settings', icon: <FiSettings /> },
 ];
 
@@ -44,8 +43,6 @@ export default function AdminLayout({ children }) {
           </Link>
         </div>
 
-        <nav className="p-4 space-y-1">
-=======
         <nav className="p-4 space-y-1 overflow-y-auto flex-1 custom-scrollbar">
 
           {links.map((l) => (
@@ -57,13 +54,6 @@ export default function AdminLayout({ children }) {
         </nav>
 
 
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-dark-100">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold">{user?.name?.[0]}</div>
-            <div><p className="text-sm font-semibold text-dark-800">{user?.name}</p><p className="text-xs text-dark-500">Super Admin</p></div>
-          </div>
-          <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 py-2 text-red-500 hover:bg-red-50 rounded-lg text-sm font-medium transition-all"><FiLogOut /> Logout</button>
-=======
         <div className="p-4 border-t border-dark-100 shrink-0 bg-white">
           <div className="flex items-center gap-3 mb-4 p-2 bg-dark-50 rounded-2xl">
             <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold shrink-0">{user?.name?.[0]}</div>
@@ -75,7 +65,6 @@ export default function AdminLayout({ children }) {
           <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 py-3 text-red-500 hover:bg-red-50 rounded-xl text-sm font-bold transition-all border border-transparent hover:border-red-100">
             <FiLogOut /> Logout
           </button>
-
         </div>
       </aside>
 

@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { subscriptionAPI } from '@/lib/api';
 import { FiCheckCircle, FiClock, FiAlertCircle, FiZap } from 'react-icons/fi';
 import toast from 'react-hot-toast';

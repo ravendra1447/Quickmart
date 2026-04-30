@@ -1,7 +1,8 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { FiPlus, FiEdit, FiTrash2, FiToggleLeft, FiToggleRight, FiRefreshCw } from 'react-icons/fi';
+import { FiPlus, FiEdit, FiTrash2, FiToggleLeft, FiToggleRight, FiRefreshCw, FiPackage } from 'react-icons/fi';
+import Image from 'next/image';
 import { sellerAPI, getImageUrl } from '@/lib/api';
 import toast from 'react-hot-toast';
 
@@ -78,7 +79,7 @@ export default function SellerProducts() {
                          } catch (e) { imgs = []; }
                          
                          if (imgs.length > 0) {
-                           return <img src={getImageUrl(imgs[0])} className="w-full h-full object-contain" alt={p.name} />;
+                           return <Image src={getImageUrl(imgs[0])} className="w-full h-full object-contain" alt={p.name} width={48} height={48} />;
                          }
                          return <FiPackage className="text-dark-200" />;
                        })()}

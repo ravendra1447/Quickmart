@@ -1,6 +1,6 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
-import { FiSend, FiPaperclip, FiClock, FiCheckCircle, FiPlus, FiChevronLeft } from 'react-icons/fi';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { FiSend, FiPaperclip, FiClock, FiCheckCircle, FiPlus, FiChevronLeft, FiHelpCircle } from 'react-icons/fi';
 import { supportAPI, commonAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
 
@@ -22,7 +22,7 @@ export default function SupportSystem({ preselectedOrder }) {
 
   const chatRef = useRef(null);
 
-  const fetchTickets = async () => {
+  const fetchTickets = useCallback(async () => {
     try {
       const res = await supportAPI.listTickets();
       setTickets(res.data);
@@ -31,9 +31,9 @@ export default function SupportSystem({ preselectedOrder }) {
       }
     } catch (err) { toast.error('Failed to load tickets'); }
     setLoading(false);
-  };
+  }, [activeTicket, preselectedOrder]);
 
-  useEffect(() => { fetchTickets(); }, []);
+  useEffect(() => { fetchTickets(); }, [fetchTickets]);
 
   useEffect(() => {
     if (activeTicket) {

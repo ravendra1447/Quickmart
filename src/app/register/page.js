@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { FiUser, FiShoppingBag, FiArrowRight, FiCheckCircle, FiShield, FiTrendingUp } from 'react-icons/fi';
@@ -7,7 +7,7 @@ import { authAPI } from '@/lib/api';
 import useAuthStore from '@/store/authStore';
 import toast from 'react-hot-toast';
 
-export default function RegisterPage() {
+function RegisterContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isSetup = searchParams.get('setup') === 'true';
@@ -191,5 +191,13 @@ export default function RegisterPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-white"><div className="w-10 h-10 border-4 border-[#fb641b] border-t-transparent rounded-full animate-spin"></div></div>}>
+      <RegisterContent />
+    </Suspense>
   );
 }

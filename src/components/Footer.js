@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import Image from 'next/image';
 import { FiFacebook, FiTwitter, FiYoutube, FiShoppingBag, FiStar, FiHelpCircle, FiGift, FiTruck } from 'react-icons/fi';
 
 export default function Footer() {

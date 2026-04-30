@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { FiArrowLeft, FiUpload, FiPackage, FiTag, FiDollarSign, FiPlus, FiTrash2, FiInfo, FiLayers, FiAlertCircle, FiCheckCircle } from 'react-icons/fi';
 import Link from 'next/link';
+import Image from 'next/image';
 import { sellerAPI, productAPI, getImageUrl } from '@/lib/api';
 import toast from 'react-hot-toast';
 
@@ -206,7 +207,7 @@ export default function EditProduct() {
                     {/* Existing Images */}
                     {existingImages.map((src, i) => (
                       <div key={`old-${i}`} className="relative aspect-square rounded-[24px] overflow-hidden border-2 border-dark-50 group shadow-sm">
-                        <img src={getImageUrl(src)} className="w-full h-full object-cover" alt="Product" />
+                        <Image src={getImageUrl(src)} className="w-full h-full object-cover" alt="Product" width={200} height={200} unoptimized />
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center">
                            <button type="button" onClick={() => removeExistingImage(src)} className="w-10 h-10 bg-red-500 text-white rounded-xl flex items-center justify-center">
                               <FiTrash2 />
@@ -217,7 +218,7 @@ export default function EditProduct() {
                     {/* New Previews */}
                     {previews.map((src, i) => (
                       <div key={`new-${i}`} className="relative aspect-square rounded-[24px] overflow-hidden border-2 border-[#fb641b]/20 group shadow-sm">
-                        <img src={src} className="w-full h-full object-cover" alt="Preview" />
+                        <Image src={src} className="w-full h-full object-cover" alt="Preview" width={200} height={200} unoptimized />
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center">
                            <button type="button" onClick={() => removeNewFile(i)} className="w-10 h-10 bg-red-500 text-white rounded-xl flex items-center justify-center">
                               <FiTrash2 />

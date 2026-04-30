@@ -26,23 +26,20 @@ export default function SellerOrders() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [refreshing, setRefreshing] = useState(false);
-<<<<<<< HEAD
-=======
+
   
   // Assignment Modal State
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [activeItem, setActiveItem] = useState(null);
   const [deliveryBoys, setDeliveryBoys] = useState([]);
   const [assigning, setAssigning] = useState(false);
->>>>>>> 70149791 (update by amit)
+
 
   const fetchOrders = () => {
     setLoading(true);
     sellerAPI.getOrders({ limit: 100 }).then(r => setOrders(r.data || [])).catch(() => { }).finally(() => setLoading(false));
   };
-<<<<<<< HEAD
-  useEffect(fetchOrders, []);
-=======
+
 
   const fetchDeliveryBoys = () => {
     sellerAPI.getDeliveryBoys().then(r => {
@@ -55,7 +52,7 @@ export default function SellerOrders() {
     fetchOrders();
     fetchDeliveryBoys();
   }, []);
->>>>>>> 70149791 (update by amit)
+
 
   const handleRefresh = () => { setRefreshing(true); fetchOrders(); setTimeout(() => setRefreshing(false), 500); };
 
@@ -67,8 +64,7 @@ export default function SellerOrders() {
     } catch (err) { toast.error(err.message); }
   };
 
-<<<<<<< HEAD
-=======
+
   const handleAssignClick = (item) => {
     setActiveItem(item);
     setShowAssignModal(true);
@@ -87,8 +83,7 @@ export default function SellerOrders() {
     setAssigning(false);
   };
 
-  // ... (keeping rest of filtering logic)
->>>>>>> 70149791 (update by amit)
+
   const rejectOrder = async (id) => {
     if (!confirm('Are you sure you want to reject this order?')) return;
     try {
@@ -103,11 +98,9 @@ export default function SellerOrders() {
   orders.forEach(o => { if (counts[o.status] !== undefined) counts[o.status]++; });
 
   if (loading) return (
-<<<<<<< HEAD
-    <div className="space-y-4 animate-pulse">
-=======
+
     <div className="space-y-4 animate-pulse p-8">
->>>>>>> 70149791 (update by amit)
+
       <div className="h-10 bg-dark-200 rounded-xl w-1/3"></div>
       {[1, 2, 3].map(i => <div key={i} className="h-24 bg-dark-100 rounded-2xl"></div>)}
     </div>
@@ -131,12 +124,10 @@ export default function SellerOrders() {
           { key: 'all', label: 'All Orders', count: counts.all, icon: '📋' },
           { key: 'pending', label: 'New', count: counts.pending, icon: '🔔' },
           { key: 'confirmed', label: 'Accepted', count: counts.confirmed, icon: '✅' },
-<<<<<<< HEAD
-          { key: 'shipped', label: 'Shipped', count: counts.shipped, icon: '🚚' },
-=======
+
           { key: 'packed', label: 'Packed', count: counts.packed, icon: '📦' },
           { key: 'shipped', label: 'Out for Delivery', count: counts.shipped, icon: '🚚' },
->>>>>>> 70149791 (update by amit)
+
           { key: 'delivered', label: 'Delivered', count: counts.delivered, icon: '✨' },
         ].map(t => (
           <button key={t.key} onClick={() => setFilter(t.key)}
@@ -167,14 +158,9 @@ export default function SellerOrders() {
                 <div>
                   <p className="text-[10px] font-black text-dark-400 uppercase tracking-widest mb-1">Date</p>
                   <span className="font-bold text-dark-700 text-sm">
-<<<<<<< HEAD
-                    {item.created_at || item.createdAt || item.order?.created_at ? 
-                      new Date(item.created_at || item.createdAt || item.order?.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 
-                      'N/A'
-                    }
-=======
+
                     {new Date(item.created_at || item.createdAt || item.order?.created_at).toLocaleDateString()}
->>>>>>> 70149791 (update by amit)
+
                   </span>
                 </div>
               </div>
@@ -198,63 +184,24 @@ export default function SellerOrders() {
                   <div className="flex flex-wrap items-center gap-6 text-sm">
                     <div>
                       <p className="text-[10px] font-black text-dark-400 uppercase tracking-widest mb-0.5">Quantity</p>
-<<<<<<< HEAD
-                      <p className="font-bold text-dark-800">{item.quantity} Unit{item.quantity > 1 ? 's' : ''}</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-black text-dark-400 uppercase tracking-widest mb-0.5">Customer</p>
-                      <p className="font-bold text-dark-800 flex items-center gap-1.5"><FiUser className="text-fk-blue" /> {item.order?.shipping_name || item.order?.user?.name || 'Customer'}</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-black text-dark-400 uppercase tracking-widest mb-0.5">City</p>
-                      <p className="font-bold text-dark-800">{item.order?.shipping_city || 'N/A'}</p>
-=======
-                      <p className="font-bold text-dark-800">{item.quantity}</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-black text-dark-400 uppercase tracking-widest mb-0.5">Customer</p>
-                      <p className="font-bold text-dark-800 flex items-center gap-1.5"><FiUser className="text-fk-blue" /> {item.order?.user?.name || 'Customer'}</p>
-                      <p className="text-[10px] text-slate-400">{item.order?.user?.phone}</p>
->>>>>>> 70149791 (update by amit)
+                      <p className="font-bold text-dark-900">{item.quantity}</p>
                     </div>
                   </div>
-                </div>
-              </div>
 
-              {/* Delivery Assignment Info */}
-              <div className="flex-1 flex flex-col gap-2 min-w-[200px]">
-                 <p className="text-[10px] font-black text-dark-400 uppercase tracking-widest mb-1">Logistics Status</p>
-                 {item.order?.delivery ? (
-                   <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-fk-blue shadow-sm">
-                         <FiTruck size={20} />
-                      </div>
-                      <div>
-                         <p className="text-xs font-black text-fk-blue leading-tight">{item.order.delivery.partner?.name || 'Assigned Partner'}</p>
-                         <p className="text-[10px] font-bold text-slate-500 mt-0.5 capitalize">{item.order.delivery.status?.split('_').join(' ')}</p>
-                         {item.order.delivery.partner?.phone && <p className="text-[10px] font-bold text-slate-400">{item.order.delivery.partner.phone}</p>}
-                      </div>
-                   </div>
-                 ) : (
-<<<<<<< HEAD
-                   <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 flex items-center gap-3 opacity-60">
-                      <FiTruck className="text-slate-400" size={20} />
-                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Assigning Partner...</p>
-                   </div>
-=======
-                    item.status === 'packed' || item.status === 'confirmed' ? (
-                       <button onClick={() => handleAssignClick(item)} className="w-full bg-fk-blue/10 border-2 border-dashed border-fk-blue/30 rounded-2xl p-4 flex flex-col items-center gap-2 hover:bg-fk-blue/20 transition-all group">
-                          <FiTruck className="text-fk-blue group-hover:scale-110 transition-transform" size={24} />
-                          <p className="text-[10px] font-black text-fk-blue uppercase tracking-widest">Assign Delivery Boy</p>
-                       </button>
+                  <div className="mt-4">
+                    {item.status === 'packed' || item.status === 'confirmed' ? (
+                      <button onClick={() => handleAssignClick(item)} className="w-full bg-fk-blue/10 border-2 border-dashed border-fk-blue/30 rounded-2xl p-4 flex flex-col items-center gap-2 hover:bg-fk-blue/20 transition-all group">
+                        <FiTruck className="text-fk-blue group-hover:scale-110 transition-transform" size={24} />
+                        <p className="text-[10px] font-black text-fk-blue uppercase tracking-widest">Assign Delivery Boy</p>
+                      </button>
                     ) : (
-                       <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 flex items-center gap-3 opacity-60">
-                          <FiTruck className="text-slate-400" size={20} />
-                          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Pending Assignment</p>
-                       </div>
-                    )
->>>>>>> 70149791 (update by amit)
-                 )}
+                      <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 flex items-center gap-3 opacity-60">
+                        <FiTruck className="text-slate-400" size={20} />
+                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Pending Assignment</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
 
               {/* Financials & Actions */}
@@ -262,11 +209,9 @@ export default function SellerOrders() {
                 <div className="text-left lg:text-right mb-6 lg:mb-0">
                   <p className="text-[10px] font-black text-dark-400 uppercase tracking-widest mb-1">Total Amount</p>
                   <p className="text-2xl font-black text-dark-900">₹{(item.price_at_purchase * item.quantity).toFixed(0)}</p>
-<<<<<<< HEAD
-                  <p className="text-xs font-bold text-[#008c00] bg-green-50 inline-block px-2 py-1 rounded mt-1">Your Earning: ₹{item.seller_earning}</p>
-=======
+
                   <p className="text-xs font-bold text-[#008c00] bg-green-50 inline-block px-2 py-1 rounded mt-1">Earning: ₹{item.seller_earning}</p>
->>>>>>> 70149791 (update by amit)
+
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
@@ -282,11 +227,9 @@ export default function SellerOrders() {
                       </button>
                     </>
                   )}
-<<<<<<< HEAD
-                  {statusFlow[item.status] && item.status !== 'pending' && (
-=======
+
                   {statusFlow[item.status] && item.status !== 'pending' && item.status !== 'delivered' && (
->>>>>>> 70149791 (update by amit)
+
                     <button onClick={() => updateStatus(item.id, statusFlow[item.status].next)}
                       className={`flex-1 lg:flex-none w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-white font-black text-sm transition-all shadow-lg ${statusFlow[item.status].color}`}>
                       {statusFlow[item.status].icon} Mark as {statusFlow[item.status].label}
@@ -294,11 +237,9 @@ export default function SellerOrders() {
                   )}
                   {(item.status === 'delivered' || item.status === 'cancelled') && (
                     <div className="flex items-center gap-2 text-sm font-black text-dark-400 px-4 py-2 bg-slate-50 rounded-xl">
-<<<<<<< HEAD
-                      <FiCheckCircle className="text-green-500" /> Completed
-=======
+
                       <FiCheckCircle className="text-green-500" /> {item.status.toUpperCase()}
->>>>>>> 70149791 (update by amit)
+
                     </div>
                   )}
                 </div>
@@ -313,17 +254,13 @@ export default function SellerOrders() {
             <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
               <FiPackage className="text-slate-300" size={40} />
             </div>
-<<<<<<< HEAD
-            <h3 className="text-2xl font-black text-dark-900 mb-2">No {filter === 'all' ? '' : filter} orders found</h3>
-=======
             <h3 className="text-2xl font-black text-dark-900 mb-2">No orders found</h3>
->>>>>>> 70149791 (update by amit)
+
             <p className="text-dark-500 font-medium">When you receive new orders, they will appear here.</p>
           </div>
         )}
       </div>
-<<<<<<< HEAD
-=======
+
 
       {/* Assign Partner Modal */}
       {showAssignModal && (
@@ -373,7 +310,7 @@ export default function SellerOrders() {
           </div>
         </div>
       )}
->>>>>>> 70149791 (update by amit)
+
     </div>
   );
 }
