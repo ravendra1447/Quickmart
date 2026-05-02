@@ -21,22 +21,53 @@ function RegisterContent() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Client-side validation
+    if (!formData.name.trim()) {
+      toast.error('Name is required');
+      return;
+    }
+    if (!formData.email.trim()) {
+      toast.error('Email is required');
+      return;
+    }
+    if (!formData.password || formData.password.length < 4) {
+      toast.error('Password must be at least 4 characters');
+      return;
+    }
+    
     setLoading(true);
     try {
       const res = await authAPI.register(formData);
+      console.log('[REGISTER] Response:', res);
       
-      if (res.data.pendingApproval) {
+      // res is already unwrapped by axios interceptor: { success, message, data: { user, token } }
+      if (res?.data?.pendingApproval) {
         toast.success('Registration successful! Please wait for Super Admin approval.', { duration: 6000 });
         router.push('/login');
+        setLoading(false);
         return;
       }
 
-      setAuth(res.data.user, res.data.token);
+      const user = res?.data?.user;
+      const token = res?.data?.token;
+      
+      if (!user || !token) {
+        console.error('[REGISTER] Invalid response structure:', res);
+        toast.error('Registration failed - unexpected server response');
+        setLoading(false);
+        return;
+      }
+
+      setAuth(user, token);
       toast.success('Registration successful!');
-      if (res.data.user.role === 'super_admin') router.push('/admin/dashboard');
-      else if (res.data.user.role === 'seller') router.push('/seller/dashboard');
+      if (user.role === 'super_admin') router.push('/admin/dashboard');
+      else if (user.role === 'seller') router.push('/seller/dashboard');
       else router.push('/');
-    } catch (err) { toast.error(err.message || 'Registration failed'); }
+    } catch (err) {
+      console.error('[REGISTER] Error:', err);
+      toast.error(err.message || 'Registration failed');
+    }
     setLoading(false);
   };
 
@@ -151,7 +182,7 @@ function RegisterContent() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className={labelClass}>Phone</label>
-                      <input type="tel" placeholder="9876543210" className={inputClass} value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} required />
+                      <input type="tel" placeholder="9876543210" className={inputClass} value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
                     </div>
                     <div>
                       <label className={labelClass}>Password</label>

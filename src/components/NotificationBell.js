@@ -22,27 +22,27 @@ export default function NotificationBell() {
   };
 
   useEffect(() => {
-    if (user && (user.role === 'seller' || user.role === 'super_admin')) {
+    if (user) {
       fetchNotifications();
       
       // Initialize FCM and request permission
-      import('@/lib/firebase').then(async ({ requestFCMToken, onMessageListener }) => {
+      import('@/lib/firebase').then(async ({ messaging, requestFCMToken }) => {
         try {
           const token = await requestFCMToken();
           if (token) {
             await notificationAPI.saveFCMToken(token);
           }
           
-          // Listen for foreground messages
-          const listenForMessage = async () => {
-            const payload = await onMessageListener();
-            import('react-hot-toast').then(({ toast }) => {
-              toast.success(payload?.notification?.title || 'New Notification Received!');
+          if (messaging) {
+            const { onMessage } = await import('firebase/messaging');
+            const unsubscribe = onMessage(messaging, (payload) => {
+              import('react-hot-toast').then(({ toast }) => {
+                toast.success(payload?.notification?.title || 'New Notification Received!');
+              });
+              fetchNotifications();
             });
-            fetchNotifications(); // Refresh notifications list
-            listenForMessage(); // Setup listener again
-          };
-          listenForMessage();
+            return () => unsubscribe();
+          }
         } catch (err) {
           console.error('FCM Setup failed:', err);
         }
@@ -83,7 +83,7 @@ export default function NotificationBell() {
     } catch (err) {}
   };
 
-  if (!user || (user.role !== 'seller' && user.role !== 'super_admin')) return null;
+  if (!user) return null;
 
   return (
     <div className="relative" ref={dropdownRef}>

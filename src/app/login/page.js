@@ -18,17 +18,37 @@ export default function LoginPage() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    if (!emailForm.email || !emailForm.password) {
+      toast.error('Please enter email and password');
+      return;
+    }
     setLoading(true);
     try {
       const res = await authAPI.login(emailForm);
-      setAuth(res.data.user, res.data.token);
+      console.log('[LOGIN] Response:', res);
+      
+      // res is already unwrapped by axios interceptor: { success, message, data: { user, token } }
+      const user = res?.data?.user;
+      const token = res?.data?.token;
+      
+      if (!user || !token) {
+        console.error('[LOGIN] Invalid response structure:', res);
+        toast.error('Login failed - unexpected server response');
+        setLoading(false);
+        return;
+      }
+      
+      setAuth(user, token);
       toast.success('Login successful!');
-      const role = res.data.user.role;
-      if (role === 'super_admin') router.push('/admin/dashboard');
-      else if (role === 'seller') router.push('/seller/dashboard');
-      else if (role === 'delivery_partner') router.push('/delivery/dashboard');
+      
+      if (user.role === 'super_admin') router.push('/admin/dashboard');
+      else if (user.role === 'seller') router.push('/seller/dashboard');
+      else if (user.role === 'delivery_partner') router.push('/delivery/dashboard');
       else router.push('/');
-    } catch (err) { toast.error(err.message || 'Invalid credentials'); }
+    } catch (err) {
+      console.error('[LOGIN] Error:', err);
+      toast.error(err.message || 'Invalid credentials');
+    }
     setLoading(false);
   };
 
@@ -39,30 +59,48 @@ export default function LoginPage() {
     try {
       const type = otpForm.identifier.includes('@') ? 'email' : 'phone';
       const res = await authAPI.sendOtp({ identifier: otpForm.identifier, type });
-      console.log('OTP API Response:', res);
+      console.log('[OTP] Send Response:', res);
       setIsOtpSent(true);
-      // Robust capture: handles if res is the body or the data part
-      const otpValue = res.data?.otp || res.otp;
+      // res is already unwrapped: { success, message, data: { message, otp } }
+      const otpValue = res?.data?.otp || '';
       setReceivedOtp(otpValue); 
       toast.success('OTP sent successfully!');
-    } catch (err) { toast.error(err.message || 'Failed to send OTP'); }
+    } catch (err) {
+      console.error('[OTP] Send Error:', err);
+      toast.error(err.message || 'Failed to send OTP');
+    }
     setLoading(false);
   };
 
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
+    if (!otpForm.otp) return toast.error('Please enter the OTP');
     setLoading(true);
     try {
       const type = otpForm.identifier.includes('@') ? 'email' : 'phone';
       const res = await authAPI.verifyOtp({ ...otpForm, type });
-      setAuth(res.data.user, res.data.token);
+      console.log('[OTP] Verify Response:', res);
+      
+      const user = res?.data?.user;
+      const token = res?.data?.token;
+      
+      if (!user || !token) {
+        toast.error('Verification failed - unexpected response');
+        setLoading(false);
+        return;
+      }
+      
+      setAuth(user, token);
       toast.success('Login successful!');
-      const role = res.data.user.role;
-      if (role === 'super_admin') router.push('/admin/dashboard');
-      else if (role === 'seller') router.push('/seller/dashboard');
-      else if (role === 'delivery_partner') router.push('/delivery/dashboard');
+      
+      if (user.role === 'super_admin') router.push('/admin/dashboard');
+      else if (user.role === 'seller') router.push('/seller/dashboard');
+      else if (user.role === 'delivery_partner') router.push('/delivery/dashboard');
       else router.push('/');
-    } catch (err) { toast.error(err.message || 'Invalid OTP'); }
+    } catch (err) {
+      console.error('[OTP] Verify Error:', err);
+      toast.error(err.message || 'Invalid OTP');
+    }
     setLoading(false);
   };
 
@@ -104,7 +142,7 @@ export default function LoginPage() {
               <div className="relative group">
                 <input 
                   type="text" 
-                  placeholder="Enter Email/Mobile number" 
+                  placeholder="Enter Email" 
                   className="w-full border-b border-fk-divider py-2 outline-none focus:border-fk-blue text-sm transition-all placeholder:text-fk-muted"
                   value={emailForm.email}
                   onChange={(e) => setEmailForm({ ...emailForm, email: e.target.value })}

@@ -146,15 +146,15 @@ export const addressAPI = {
 
 // Hyperlocal Public APIs
 export const hyperlocalAPI = {
-  getBanners: () => api.get('/banners'),
-  getNearbySellers: (lat, lng, radius) => api.get('/nearby-sellers', { params: { latitude: lat, longitude: lng, radius } }),
-  getDeliveryEstimate: (params) => api.get('/delivery-estimate', { params }),
-  validateCoupon: (data) => api.post('/coupons/validate', data),
+  getBanners: () => api.get('/hyperlocal/banners'),
+  getNearbySellers: (lat, lng, radius) => api.get('/hyperlocal/nearby-sellers', { params: { latitude: lat, longitude: lng, radius } }),
+  getDeliveryEstimate: (params) => api.get('/hyperlocal/delivery-estimate', { params }),
+  validateCoupon: (data) => api.post('/hyperlocal/coupons/validate', data),
 };
 
 // Common APIs
 export const commonAPI = {
-  uploadImage: (formData) => api.post('/upload', formData, { 
+  uploadImage: (formData) => api.post('/media/upload', formData, { 
     headers: { 'Content-Type': 'multipart/form-data' } 
   }),
 };

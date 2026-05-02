@@ -12,7 +12,7 @@ const firebaseConfig = {
 };
 
 let app;
-let messaging;
+export let messaging;
 
 if (typeof window !== 'undefined') {
   app = initializeApp(firebaseConfig);

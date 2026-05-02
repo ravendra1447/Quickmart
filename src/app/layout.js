@@ -3,6 +3,7 @@ import { Toaster } from 'react-hot-toast';
 import AuthProvider from '@/components/AuthProvider';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import ChatWidget from '@/components/ChatWidget';
 
 export const metadata = {
   title: 'QuickMart - Multivendor eCommerce Platform',
@@ -20,6 +21,7 @@ export default function RootLayout({ children }) {
             {children}
           </main>
           <Footer />
+          <ChatWidget />
           <Toaster position="top-right" toastOptions={{
             duration: 3000,
             style: { borderRadius: '12px', background: '#1e293b', color: '#f1f5f9', fontSize: '14px' },

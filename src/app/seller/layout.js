@@ -13,6 +13,7 @@ const links = [
   { href: '/seller/orders', label: 'Orders', icon: <FiShoppingCart /> },
 
   { href: '/seller/delivery-boys', label: 'Delivery Boys', icon: <FiTruck /> },
+  { href: '/seller/cash-settlements', label: 'Cash Settlements', icon: <FiDollarSign /> },
   { href: '/seller/subscription', label: 'Subscription', icon: <FiCreditCard /> },
 
   { href: '/seller/earnings', label: 'Earnings', icon: <FiDollarSign /> },

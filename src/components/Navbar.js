@@ -14,24 +14,26 @@ import NotificationBell from './NotificationBell';
 
 export default function Navbar() {
   const pathname = usePathname();
-  const [user, setUser] = useState(null);
+  const user = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
+  const cartItems = useCartStore((s) => s.items);
+  const fetchCart = useCartStore((s) => s.fetchCart);
   const [mounted, setMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [categories, setCategories] = useState([]);
-  const authStore = useAuthStore();
-  const cartStore = useCartStore();
 
   useEffect(() => { 
     setMounted(true); 
     productAPI.getCategories().then(res => setCategories(res.data || [])).catch(() => {});
   }, []);
 
-  useEffect(() => { if (mounted) setUser(authStore.user); }, [mounted, authStore.user]);
-  useEffect(() => { if (mounted && authStore.user) cartStore.fetchCart(); }, [mounted, authStore.user, cartStore]);
+  useEffect(() => { 
+    if (mounted && user) fetchCart(); 
+  }, [mounted, user, fetchCart]);
 
-  const itemCount = mounted ? (cartStore.items?.length || 0) : 0;
-  const handleLogout = () => { authStore.logout(); setUser(null); setIsSidebarOpen(false); window.location.href = '/'; };
+  const itemCount = mounted ? (cartItems?.length || 0) : 0;
+  const handleLogout = () => { logout(); setIsSidebarOpen(false); window.location.href = '/'; };
 
   if (pathname?.startsWith('/admin') || pathname?.startsWith('/seller') || pathname === '/checkout') return null;
 
