@@ -41,15 +41,26 @@ export default function LoginPage() {
       setAuth(user, token);
       toast.success('Login successful!');
       
-      if (user.role === 'super_admin') router.push('/admin/dashboard');
-      else if (user.role === 'seller') router.push('/seller/dashboard');
-      else if (user.role === 'delivery_partner') router.push('/delivery/dashboard');
-      else router.push('/');
+      console.log('[LOGIN] Auth success, role:', user.role);
+      
+      // Attempt redirection
+      try {
+        if (user.role === 'super_admin') router.push('/admin/dashboard');
+        else if (user.role === 'seller') router.push('/seller/dashboard');
+        else if (user.role === 'delivery_partner') router.push('/delivery/dashboard');
+        else router.push('/');
+        
+        // Small delay to clear loading after navigation starts
+        setTimeout(() => setLoading(false), 500);
+      } catch (routerErr) {
+        console.error('[LOGIN] Redirection failed:', routerErr);
+        window.location.href = '/'; 
+      }
     } catch (err) {
       console.error('[LOGIN] Error:', err);
       toast.error(err.message || 'Invalid credentials');
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleSendOtp = async (e) => {
@@ -93,15 +104,24 @@ export default function LoginPage() {
       setAuth(user, token);
       toast.success('Login successful!');
       
-      if (user.role === 'super_admin') router.push('/admin/dashboard');
-      else if (user.role === 'seller') router.push('/seller/dashboard');
-      else if (user.role === 'delivery_partner') router.push('/delivery/dashboard');
-      else router.push('/');
+      console.log('[OTP] Verification success, role:', user.role);
+
+      try {
+        if (user.role === 'super_admin') router.push('/admin/dashboard');
+        else if (user.role === 'seller') router.push('/seller/dashboard');
+        else if (user.role === 'delivery_partner') router.push('/delivery/dashboard');
+        else router.push('/');
+        
+        setTimeout(() => setLoading(false), 500);
+      } catch (routerErr) {
+        console.error('[OTP] Redirection failed:', routerErr);
+        window.location.href = '/';
+      }
     } catch (err) {
       console.error('[OTP] Verify Error:', err);
       toast.error(err.message || 'Invalid OTP');
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
