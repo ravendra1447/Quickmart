@@ -9,7 +9,7 @@ export default function Footer() {
   const footerSections = [
     {
       title: 'ABOUT',
-      links: ['Contact Us', 'About Us', 'Careers', 'QuickMart Stories', 'Press', 'QuickMart Wholesale', 'Cleartrip', 'Corporate Information']
+      links: ['Contact Us', 'About Us', 'Careers', 'NearbyDukan Stories', 'Press', 'NearbyDukan Wholesale', 'Cleartrip', 'Corporate Information']
     },
     {
       title: 'HELP',
@@ -49,7 +49,7 @@ export default function Footer() {
             <div>
               <h3 className="text-[#878787] text-[10px] font-bold mb-4 uppercase">Mail Us:</h3>
               <p className="text-xs font-bold leading-relaxed">
-                QuickMart Internet Private Limited,<br />
+                NearbyDukan Internet Private Limited,<br />
                 Buildings Alyssa, Begonia &<br />
                 Clove Embassy Tech Village,<br />
                 Outer Ring Road, Devarabeesanahalli Village,<br />
@@ -59,7 +59,7 @@ export default function Footer() {
             <div>
               <h3 className="text-[#878787] text-[10px] font-bold mb-4 uppercase">Registered Office:</h3>
               <p className="text-xs font-bold leading-relaxed">
-                QuickMart Internet Private Limited,<br />
+                NearbyDukan Internet Private Limited,<br />
                 Buildings Alyssa, Begonia &<br />
                 Clove Embassy Tech Village,<br />
                 Outer Ring Road, Devarabeesanahalli Village,<br />
@@ -93,7 +93,7 @@ export default function Footer() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-12 w-full lg:w-auto">
             <div className="text-xs font-bold text-white text-center">
-              © 2007-{currentYear} QuickMart.com
+              © 2007-{currentYear} NearbyDukan.com
             </div>
 
             <div className="flex items-center justify-center gap-5 sm:gap-6 bg-white px-6 py-3.5 rounded-2xl shadow-[0_10px_20px_rgba(0,0,0,0.2)]">

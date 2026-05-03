@@ -120,12 +120,12 @@ export default function SubscriptionPage() {
             </div>
 
             <div className="flex-grow space-y-2 mb-8">
-              {(plan.features || ['Full Dashboard', 'Order Tracking', 'Support']).map((f, i) => (
+              {Array.isArray(plan.features) ? plan.features.map((f, i) => (
                 <div key={i} className="flex items-center gap-2 text-dark-600 font-bold text-xs">
                   <FiCheckCircle className="text-green-500 text-[10px] shrink-0" />
                   {f}
                 </div>
-              ))}
+              )) : null}
             </div>
 
             <button
@@ -208,11 +208,11 @@ export default function SubscriptionPage() {
               {paymentData.method === 'upi' ? (
                 <div className="space-y-4">
                   <div className="bg-indigo-50 p-4 rounded-2xl flex items-center gap-4">
-                    <img src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=upi://pay?pa=quickmart@upi&pn=QuickMart&am=${selectedPlan.price}&cu=INR`} 
+                    <img src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=upi://pay?pa=nearbydukan@upi&pn=NearbyDukan&am=${selectedPlan.price}&cu=INR`} 
                       alt="QR" className="w-16 h-16 bg-white p-1.5 rounded-lg shadow-sm" />
                     <div>
                       <p className="text-[9px] font-black text-indigo-600 uppercase">Scan to Pay</p>
-                      <p className="text-sm font-black text-dark-900">quickmart@upi</p>
+                      <p className="text-sm font-black text-dark-900">nearbydukan@upi</p>
                     </div>
                   </div>
                   

@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { FiPlus, FiEdit, FiTrash2, FiImage, FiUploadCloud, FiXCircle, FiExternalLink, FiLayers, FiEye } from 'react-icons/fi';
-import { adminAPI, commonAPI } from '@/lib/api';
+import { adminAPI, commonAPI, getImageUrl } from '@/lib/api';
 import toast from 'react-hot-toast';
 
 export default function AdminBanners() {
@@ -22,6 +22,7 @@ export default function AdminBanners() {
     const file = e.target.files[0];
     if (!file) return;
 
+    console.log('[DEBUG] Selected file:', file.name, file.type, file.size);
     setUploading(true);
     const formData = new FormData();
     formData.append('image', file);
@@ -31,7 +32,8 @@ export default function AdminBanners() {
       setForm(prev => ({ ...prev, image_url: res.data.url }));
       toast.success('Image uploaded successfully');
     } catch (err) {
-      toast.error('Image upload failed');
+      console.error('Upload Error:', err);
+      toast.error(err.message || 'Image upload failed');
     } finally {
       setUploading(false);
     }
@@ -115,7 +117,7 @@ export default function AdminBanners() {
                 <div className="relative group">
                   {form.image_url ? (
                     <div className="relative aspect-[21/9] rounded-2xl overflow-hidden border border-slate-200">
-                      <img src={form.image_url} alt="Preview" className="w-full h-full object-cover" />
+                      <img src={getImageUrl(form.image_url)} alt="Preview" className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center">
                         <label className="cursor-pointer bg-white text-fb-blue px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest shadow-xl">
                           Change Image
@@ -188,7 +190,7 @@ export default function AdminBanners() {
         {banners.map(b => (
           <div key={b.id} className="bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row overflow-hidden group">
             <div className="md:w-72 aspect-[21/9] md:aspect-auto bg-slate-100 flex-shrink-0 relative overflow-hidden">
-              <img src={b.image_url} alt={b.title} className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-700" />
+              <img src={getImageUrl(b.image_url)} alt={b.title} className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-700" />
               {!b.is_active && (
                 <div className="absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center">
                   <span className="bg-rose-500 text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">Inactive</span>

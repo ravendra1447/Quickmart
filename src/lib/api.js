@@ -11,7 +11,6 @@ export const getImageUrl = (path) => {
 
 const api = axios.create({
   baseURL: API_BASE,
-  headers: { 'Content-Type': 'application/json' },
 });
 
 // Add JWT token to requests
@@ -82,8 +81,8 @@ export const sellerAPI = {
   updateProfile: (data) => api.put('/seller/profile', data),
   getProducts: (params) => api.get('/seller/products', { params }),
   getProduct: (id) => api.get(`/seller/products/${id}`),
-  createProduct: (data) => api.post('/seller/products', data, { headers: { 'Content-Type': 'multipart/form-data' } }),
-  updateProduct: (id, data) => api.put(`/seller/products/${id}`, data, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  createProduct: (data) => api.post('/seller/products', data),
+  updateProduct: (id, data) => api.put(`/seller/products/${id}`, data),
   deleteProduct: (id) => api.delete(`/seller/products/${id}`),
   getOrders: (params) => api.get('/seller/orders', { params }),
 
@@ -100,8 +99,9 @@ export const sellerAPI = {
   // Cash Settlements
   getCashSettlements: () => api.get('/seller/cash-settlements'),
   confirmCashSettlement: (id) => api.put(`/seller/cash-settlements/${id}/confirm`),
+  getCashHistory: () => api.get('/seller/cash-history'),
   // Order Assignment
-  assignOrder: (id, partnerId) => api.post(`/seller/orders/${id}/assign`, { partnerId }),
+  assignOrder: (id, partnerId) => api.post(`/seller/orders/${id}/assign`, { partner_id: partnerId }),
 };
 
 
@@ -117,7 +117,7 @@ export const adminAPI = {
   getSellers: (params) => api.get('/admin/sellers', { params }),
   updateSellerStatus: (id, data) => api.put(`/admin/sellers/${id}/status`, data),
   getProducts: (params) => api.get('/admin/products', { params }),
-  createProduct: (data) => api.post('/admin/products', data, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  createProduct: (data) => api.post('/admin/products', data),
   getOrders: (params) => api.get('/admin/orders', { params }),
   getSettings: () => api.get('/admin/settings'),
   updateSetting: (data) => api.put('/admin/settings', data),
@@ -133,6 +133,7 @@ export const adminAPI = {
   getDeliveryPartners: (params) => api.get('/admin/delivery-partners', { params }),
   createDeliveryPartner: (data) => api.post('/admin/delivery-partners', data),
   assignOrder: (orderId, partnerId, data = {}) => api.post(`/admin/orders/${orderId}/assign`, { partner_id: partnerId, ...data }),
+  getCashHistory: () => api.get('/admin/cash-history'),
 };
 
 // Address APIs (Customer)
@@ -154,9 +155,7 @@ export const hyperlocalAPI = {
 
 // Common APIs
 export const commonAPI = {
-  uploadImage: (formData) => api.post('/media/upload', formData, { 
-    headers: { 'Content-Type': 'multipart/form-data' } 
-  }),
+  uploadImage: (formData) => api.post('/media/upload', formData),
 };
 
 // Notification API
@@ -176,6 +175,7 @@ export const deliveryAPI = {
   updateProfile: (data) => api.put('/delivery/profile', data),
 
   submitSettlement: (data) => api.post('/delivery/settlements', data),
+  confirmSettlement: (id) => api.put(`/delivery/settlements/${id}/confirm`),
   getSettlements: () => api.get('/delivery/settlements'),
 
 };
@@ -199,15 +199,16 @@ export const subscriptionAPI = {
   getPlans: () => api.get('/seller/subscription/plans'),
   getStatus: () => api.get('/seller/subscription/status'),
   purchasePlan: (data) => api.post('/seller/subscription/purchase', data),
+  getCashHistory: () => api.get('/seller/cash-history'),
   
   // Admin APIs
-  getAdminPlans: () => api.get('/admin/subscriptions/plans'),
-  createPlan: (data) => api.post('/admin/subscriptions/plans', data),
-  updatePlan: (id, data) => api.put(`/admin/subscriptions/plans/${id}`, data),
-  deletePlan: (id) => api.delete(`/admin/subscriptions/plans/${id}`),
-  getSellerSubscriptions: () => api.get('/admin/subscriptions/history'),
-  approveSubscription: (id) => api.put(`/admin/subscriptions/${id}/approve`),
-  rejectSubscription: (id) => api.put(`/admin/subscriptions/${id}/reject`),
+  getAdminPlans: () => api.get('/subscription/admin/plans'),
+  createPlan: (data) => api.post('/subscription/admin/plans', data),
+  updatePlan: (id, data) => api.put(`/subscription/admin/plans/${id}`, data),
+  deletePlan: (id) => api.delete(`/subscription/admin/plans/${id}`),
+  getSellerSubscriptions: () => api.get('/subscription/admin/history'),
+  approveSubscription: (id) => api.put(`/subscription/admin/${id}/approve`),
+  rejectSubscription: (id) => api.put(`/subscription/admin/${id}/reject`),
 };
 
 

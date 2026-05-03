@@ -116,72 +116,103 @@ export default function AdminSubscriptionsPage() {
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[1, 2, 3].map(i => <div key={i} className="h-[500px] bg-white/50 rounded-[48px] animate-pulse"></div>)}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {[1, 2, 3, 4, 5, 6].map(i => (
+              <div key={i} className="h-[320px] bg-white/50 rounded-2xl animate-pulse relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/20 to-blue-50/20"></div>
+                <div className="p-6 space-y-3">
+                  <div className="h-6 bg-white/30 rounded-lg w-3/4"></div>
+                  <div className="h-8 bg-white/30 rounded-lg w-1/2"></div>
+                  <div className="space-y-2">
+                    <div className="h-3 bg-white/20 rounded-lg w-full"></div>
+                    <div className="h-3 bg-white/20 rounded-lg w-5/6"></div>
+                    <div className="h-3 bg-white/20 rounded-lg w-4/6"></div>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         ) : activeTab === 'plans' ? (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {plans.map((plan) => (
-                <div key={plan.id} className="bg-white p-10 rounded-[56px] border border-white shadow-[0_40px_100px_-20px_rgba(79,70,229,0.08)] hover:shadow-[0_40px_100px_-20px_rgba(79,70,229,0.15)] transition-all duration-500 group relative overflow-hidden flex flex-col h-full">
-                  <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-indigo-50 to-blue-50 rounded-full -mr-20 -mt-20 group-hover:scale-150 transition-transform duration-700"></div>
+                <div key={plan.id} className="bg-white p-6 rounded-2xl border border-white shadow-lg hover:shadow-xl transition-all duration-300 group relative overflow-hidden flex flex-col h-[320px]">
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-indigo-50 to-blue-50 rounded-full -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-500"></div>
 
                   <div className="relative z-10 flex flex-col h-full">
-                    <div className="flex justify-between items-start mb-8">
-                      <div className="px-5 py-2 bg-indigo-50 text-indigo-600 rounded-2xl text-[10px] font-black uppercase tracking-widest w-fit">
-                        {plan.duration_months} Months Access
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-[9px] font-black uppercase tracking-wider">
+                        {plan.duration_months}M
                       </div>
-                      <button onClick={() => { setEditingPlan(plan); setFormData({ ...plan, features: plan.features || [] }); setShowModal(true); }}
-                        className="p-4 bg-dark-50 text-dark-400 rounded-2xl hover:bg-indigo-600 hover:text-white transition-all shadow-sm">
-                        <FiEdit2 className="text-lg" />
-                      </button>
+                      <div className="flex gap-1">
+                        <button onClick={() => { setEditingPlan(plan); setFormData({ ...plan, features: plan.features || [] }); setShowModal(true); }}
+                          className="p-2 bg-dark-50 text-dark-400 rounded-lg hover:bg-indigo-600 hover:text-white transition-all">
+                          <FiEdit2 className="text-sm" />
+                        </button>
+                        <button onClick={() => handleDelete(plan.id)}
+                          className="p-2 bg-red-50 text-red-400 rounded-lg hover:bg-red-600 hover:text-white transition-all">
+                          <FiTrash2 className="text-sm" />
+                        </button>
+                      </div>
                     </div>
 
-                    <h3 className="text-3xl font-black text-dark-900 leading-tight mb-4">{plan.name}</h3>
+                    <h3 className="text-xl font-black text-dark-900 leading-tight mb-3 truncate">{plan.name}</h3>
 
-                    <div className="flex items-center gap-3 mb-8">
-                      <span className="text-5xl font-black text-dark-900 tracking-tighter">₹{plan.price}</span>
+                    <div className="flex items-center gap-2 mb-4">
+                      <span className="text-3xl font-black text-dark-900 tracking-tighter">₹{plan.price}</span>
                       {plan.compare_at_price && parseFloat(plan.compare_at_price) > 0 && (
                         <div className="flex flex-col">
-                          <span className="text-lg text-dark-300 line-through font-bold">₹{plan.compare_at_price}</span>
-                          <span className="text-[10px] font-black text-green-600 uppercase tracking-tighter">
-                            Save {Math.round(((plan.compare_at_price - plan.price) / plan.compare_at_price) * 100)}% OFF
+                          <span className="text-sm text-dark-300 line-through font-bold">₹{plan.compare_at_price}</span>
+                          <span className="text-[8px] font-black text-green-600 uppercase tracking-tighter">
+                            {Math.round(((plan.compare_at_price - plan.price) / plan.compare_at_price) * 100)}% OFF
                           </span>
                         </div>
                       )}
                     </div>
 
-                    <div className="flex-grow space-y-6 mb-10">
-                      <p className="text-dark-500 font-bold text-sm leading-relaxed">{plan.description}</p>
-                      <div className="space-y-4 pt-6 border-t border-dark-50">
-                        {(plan.features || []).map((f, idx) => (
-                          <div key={idx} className="flex items-start gap-3 text-dark-700 font-bold text-sm">
-                            <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0 mt-0.5">
-                              <FiCheck className="text-white text-[10px]" />
+                    <div className="flex-grow space-y-3 mb-4">
+                      <p className="text-dark-500 font-semibold text-xs leading-relaxed line-clamp-2">{plan.description}</p>
+                      <div className="space-y-2 pt-3 border-t border-dark-50">
+                        {Array.isArray(plan.features) && plan.features.slice(0, 2).map((f, idx) => (
+                          <div key={idx} className="flex items-start gap-2 text-dark-700 font-semibold text-xs">
+                            <div className="w-3 h-3 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0 mt-0.5">
+                              <FiCheck className="text-white text-[6px]" />
                             </div>
-                            {f}
+                            <span className="line-clamp-1">{f}</span>
                           </div>
                         ))}
+                        {Array.isArray(plan.features) && plan.features.length > 2 && (
+                          <p className="text-indigo-600 font-black text-xs">+{plan.features.length - 2} more</p>
+                        )}
                         {(!plan.features || plan.features.length === 0) && (
-                          <p className="text-dark-300 italic text-xs">Edit plan to add exclusive benefits</p>
+                          <p className="text-dark-300 italic text-xs">No features</p>
                         )}
                       </div>
                     </div>
 
-                    <div className="mt-auto pt-6 border-t border-dark-50 flex items-center gap-3 text-[10px] font-black text-dark-400 uppercase tracking-widest">
-                      <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                      Available for all Sellers
+                    <div className="mt-auto pt-3 border-t border-dark-50 flex items-center gap-2 text-[8px] font-black text-dark-400 uppercase tracking-wider">
+                      <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
+                      Available
                     </div>
                   </div>
                 </div>
               ))}
             </div>
             {plans.length === 0 && (
-              <div className="py-20 text-center space-y-4">
-                <div className="w-24 h-24 bg-dark-50 rounded-full flex items-center justify-center mx-auto">
-                  <FiInfo className="text-3xl text-dark-200" />
+              <div className="py-20 text-center space-y-6">
+                <div className="w-32 h-32 bg-gradient-to-br from-indigo-50 to-blue-50 rounded-full flex items-center justify-center mx-auto">
+                  <FiInfo className="text-4xl text-indigo-300" />
                 </div>
-                <p className="text-dark-400 font-black text-xl">No active subscription plans found</p>
+                <div className="space-y-2">
+                  <p className="text-dark-400 font-black text-2xl">No subscription plans yet</p>
+                  <p className="text-dark-300 font-bold text-lg">Create your first plan to start selling subscriptions</p>
+                </div>
+                <button
+                  onClick={() => { setEditingPlan(null); setFormData({ name: '', description: '', price: '', compare_at_price: '', duration_months: 1, features: [] }); setShowModal(true); }}
+                  className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-2xl font-black shadow-2xl shadow-indigo-200 hover:scale-[1.02] active:scale-95 transition-all mx-auto"
+                >
+                  <FiPlus className="text-xl" /> Create First Plan
+                </button>
               </div>
             )}
           </>
@@ -270,11 +301,14 @@ export default function AdminSubscriptionsPage() {
               </tbody>
             </table>
             {history.length === 0 && (
-              <div className="px-10 py-32 text-center">
-                <div className="w-20 h-20 bg-dark-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <FiInfo className="text-2xl text-dark-200" />
+              <div className="px-10 py-32 text-center space-y-6">
+                <div className="w-24 h-24 bg-gradient-to-br from-green-50 to-emerald-50 rounded-full flex items-center justify-center mx-auto">
+                  <FiInfo className="text-3xl text-green-300" />
                 </div>
-                <p className="text-dark-400 font-black text-2xl tracking-tight">Financial history is currently empty</p>
+                <div className="space-y-2">
+                  <p className="text-dark-400 font-black text-2xl tracking-tight">No subscription history yet</p>
+                  <p className="text-dark-300 font-bold text-lg">When sellers purchase plans, their activity will appear here</p>
+                </div>
               </div>
             )}
           </div>
@@ -325,17 +359,36 @@ export default function AdminSubscriptionsPage() {
                   <div className="space-y-4 col-span-full">
                     <label className="text-[11px] font-black text-dark-400 uppercase tracking-[0.2em] ml-2">Plan Benefits & Features</label>
                     <div className="flex gap-3">
-                      <input type="text" value={newFeature} onChange={e => setNewFeature(e.target.value)}
+                      <input 
+                        type="text" 
+                        value={newFeature} 
+                        onChange={e => setNewFeature(e.target.value)}
                         onKeyPress={e => e.key === 'Enter' && (e.preventDefault(), addFeature())}
-                        className="flex-1 px-8 py-5 rounded-[24px] border-2 border-dark-50 focus:border-indigo-600 outline-none transition-all font-bold text-sm shadow-sm" placeholder="Add a benefit... e.g. Zero Commission" />
-                      <button type="button" onClick={addFeature} className="px-8 bg-indigo-50 text-indigo-600 rounded-[24px] font-black hover:bg-indigo-600 hover:text-white transition-all">Add</button>
+                        className="flex-1 px-8 py-5 rounded-[24px] border-2 border-dark-50 focus:border-indigo-600 outline-none transition-all font-bold text-sm shadow-sm placeholder-dark-300" 
+                        placeholder="Add a benefit... e.g. Zero Commission" 
+                      />
+                      <button 
+                        type="button" 
+                        onClick={addFeature}
+                        disabled={!newFeature.trim()}
+                        className="px-8 bg-indigo-50 text-indigo-600 rounded-[24px] font-black hover:bg-indigo-600 hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Add
+                      </button>
                     </div>
-                    <div className="flex flex-wrap gap-3">
-                      {(formData.features || []).map((f, i) => (
-                        <div key={i} className="flex items-center gap-2 px-5 py-3 bg-indigo-50 text-indigo-600 rounded-2xl text-xs font-black group">
-                          {f} <button type="button" onClick={() => removeFeature(i)} className="text-red-400 hover:text-red-600"><FiX /></button>
-                        </div>
-                      ))}
+                    <div className="flex flex-wrap gap-3 min-h-[50px] p-4 bg-dark-50/30 rounded-2xl">
+                      {(formData.features || []).length === 0 ? (
+                        <p className="text-dark-300 italic text-sm">No features added yet. Add benefits above.</p>
+                      ) : (
+                        (formData.features || []).map((f, i) => (
+                          <div key={i} className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-indigo-50 to-blue-50 text-indigo-600 rounded-2xl text-xs font-black group hover:from-red-50 hover:to-red-50 hover:text-red-600 transition-all">
+                            <span className="truncate max-w-[200px]">{f}</span>
+                            <button type="button" onClick={() => removeFeature(i)} className="flex-shrink-0 hover:scale-110 transition-transform">
+                              <FiX />
+                            </button>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
 
@@ -346,7 +399,11 @@ export default function AdminSubscriptionsPage() {
                   </div>
                 </div>
 
-                <button type="submit" className="w-full py-6 bg-indigo-600 text-white rounded-[32px] font-black text-xl shadow-2xl shadow-indigo-200 hover:bg-indigo-700 hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-3">
+                <button 
+                  type="submit" 
+                  disabled={!formData.name || !formData.description || !formData.price || (formData.features || []).length === 0}
+                  className="w-full py-6 bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-[32px] font-black text-xl shadow-2xl shadow-indigo-200 hover:from-indigo-700 hover:to-blue-700 hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                >
                   {editingPlan ? 'Update Plan Configuration' : 'Release Subscription Plan'} <FiCheck className="text-2xl" />
                 </button>
               </form>

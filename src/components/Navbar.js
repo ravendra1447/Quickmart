@@ -53,9 +53,9 @@ export default function Navbar() {
 
             {/* Logo */}
             <Link href="/" className="flex flex-col items-start leading-[0.8]">
-              <span className="text-white font-black italic text-lg md:text-xl tracking-tight">QuickMart</span>
+              <span className="text-white font-black italic text-lg md:text-xl tracking-tight">NearbyDukan</span>
               <span className="text-white/80 font-bold italic text-[9px] md:text-[10px] flex items-center gap-0.5">
-                Explore <span className="text-fk-yellow font-black">Quick</span>
+                Explore <span className="text-fk-yellow font-black">Nearby</span>
                 <span className="text-fk-yellow font-black text-[12px] ml-0.5">+</span>
               </span>
             </Link>
@@ -118,7 +118,7 @@ export default function Navbar() {
                     <FiHeart className="text-fk-blue" size={16} /> Wishlist
                   </Link>
                   <Link href="/rewards" className="flex items-center gap-4 px-4 py-3 hover:bg-slate-50 text-sm font-bold border-t border-slate-50">
-                    <FiZap className="text-fk-blue" size={16} /> QuickMart Plus Zone
+                    <FiZap className="text-fk-blue" size={16} /> NearbyDukan Plus Zone
                   </Link>
                   <Link href="/rewards" className="flex items-center gap-4 px-4 py-3 hover:bg-slate-50 text-sm font-bold">
                     <FiGift className="text-fk-blue" size={16} /> Rewards

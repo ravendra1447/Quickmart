@@ -190,7 +190,7 @@ export default function OrderDetailPage() {
                      <h3 className="font-black text-dark-900 uppercase text-xs tracking-widest">Pickup Point (Hub)</h3>
                   </div>
                   <div className="space-y-1">
-                     <p className="font-bold text-dark-900">{order.items?.[0]?.product?.seller?.sellerProfile?.store_name || 'QuickMart Hub'}</p>
+                     <p className="font-bold text-dark-900">{order.items?.[0]?.product?.seller?.sellerProfile?.store_name || 'NearbyDukan Hub'}</p>
                      <p className="text-sm text-dark-600 mt-2 leading-relaxed">{order.items?.[0]?.product?.seller?.sellerProfile?.business_address || 'Address not available'}</p>
                      {order.items?.[0]?.product?.seller?.sellerProfile?.latitude && (
                         <a 

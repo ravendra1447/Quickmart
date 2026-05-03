@@ -26,7 +26,7 @@ export default function MapComponent({ assignments }) {
   const zoomLevel = assignments.length > 0 ? 12 : 5;
 
   // Use the first assignment's location to center the map if available
-  const center = assignments.length > 0 && assignments[0].partner.lat 
+  const center = assignments.length > 0 && assignments[0].partner && assignments[0].partner.lat 
     ? [assignments[0].partner.lat, assignments[0].partner.lng] 
     : defaultCenter;
 
@@ -38,14 +38,14 @@ export default function MapComponent({ assignments }) {
       />
       
       {assignments.map(a => {
-        if (a.partner.lat && a.partner.lng) {
+        if (a.partner && a.partner.lat && a.partner.lng) {
           return (
             <Marker key={a.id} position={[a.partner.lat, a.partner.lng]} icon={deliveryIcon}>
               <Popup>
                 <div className="text-center">
-                  <p className="font-bold">{a.partner.name}</p>
+                  <p className="font-bold">{a.partner.name || 'Unknown Partner'}</p>
                   <p className="text-xs">{a.status.replace('_', ' ').toUpperCase()}</p>
-                  <p className="text-xs text-[#fb641b]">Order: #{a.order?.order_number}</p>
+                  <p className="text-xs text-[#fb641b]">Order: #{a.order?.order_number || 'N/A'}</p>
                 </div>
               </Popup>
             </Marker>

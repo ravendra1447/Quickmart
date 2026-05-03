@@ -183,7 +183,7 @@ export default function LoginPage() {
               </div>
 
               <p className="text-[10px] text-fk-muted leading-relaxed">
-                By continuing, you agree to QuickMart&apos;s <span className="text-fk-blue cursor-pointer">Terms of Use</span> and <span className="text-fk-blue cursor-pointer">Privacy Policy</span>.
+                By continuing, you agree to NearbyDukan&apos;s <span className="text-fk-blue cursor-pointer">Terms of Use</span> and <span className="text-fk-blue cursor-pointer">Privacy Policy</span>.
               </p>
 
               <button 
@@ -248,7 +248,7 @@ export default function LoginPage() {
           )}
 
           <div className="mt-auto pt-10">
-            <Link href="/register" className="text-fk-blue text-sm font-bold w-full text-center block hover:underline">New to QuickMart? Create an account</Link>
+            <Link href="/register" className="text-fk-blue text-sm font-bold w-full text-center block hover:underline">New to NearbyDukan? Create an account</Link>
           </div>
 
         </div>

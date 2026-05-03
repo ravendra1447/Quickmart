@@ -56,12 +56,12 @@ export default function HomePage() {
           <div className="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl relative animate-slide-up">
             <button onClick={() => setShowLoginModal(false)} className="absolute top-4 right-4 text-dark-400 hover:text-dark-900 transition-all z-10"><FiArrowRight className="rotate-45" size={24} /></button>
             <div className="bg-fk-blue p-8 text-white">
-               <h3 className="text-2xl font-black italic tracking-tight">QuickMart Login</h3>
+               <h3 className="text-2xl font-black italic tracking-tight">NearbyDukan Login</h3>
                <p className="text-sm font-bold opacity-80 mt-2">Get access to your Orders, Wishlist and Recommendations</p>
             </div>
             <div className="p-8 space-y-4">
                <Link href="/login" className="block w-full bg-[#fb641b] text-white text-center py-4 rounded-xl font-black text-lg shadow-xl shadow-orange-100 hover:bg-[#e65a18] transition-all">LOGIN</Link>
-               <Link href="/register" className="block w-full text-center py-4 text-fk-blue font-black border border-dark-100 rounded-xl hover:bg-slate-50 transition-all">New to QuickMart? Create an account</Link>
+               <Link href="/register" className="block w-full text-center py-4 text-fk-blue font-black border border-dark-100 rounded-xl hover:bg-slate-50 transition-all">New to NearbyDukan? Create an account</Link>
             </div>
           </div>
         </div>
@@ -108,7 +108,7 @@ export default function HomePage() {
                   <div className="w-full h-full bg-fk-blue flex items-center justify-center text-white p-6 sm:p-12">
                     <div className="text-center">
                       <h2 className="text-2xl sm:text-4xl lg:text-6xl font-black italic uppercase tracking-tighter drop-shadow-lg">{b.title}</h2>
-                      <p className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] mt-2 opacity-80">Special Dynamic Offer Only On QuickMart</p>
+                      <p className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] mt-2 opacity-80">Special Dynamic Offer Only On NearbyDukan</p>
                       <div className="mt-6 inline-block bg-fk-yellow text-[#212121] px-8 py-2.5 rounded-sm font-black text-xs uppercase shadow-xl transform hover:scale-105 transition-all">Shop Now</div>
                     </div>
                   </div>
@@ -119,7 +119,7 @@ export default function HomePage() {
             <div className="w-full h-full bg-fk-blue flex items-center justify-center text-white">
               <div className="text-center animate-pulse">
                 <h2 className="text-3xl sm:text-5xl font-black italic uppercase tracking-tighter">Big Saving Days</h2>
-                <p className="text-xs font-black uppercase tracking-[0.3em] mt-2 opacity-70 italic">Exclusively on QuickMart</p>
+                <p className="text-xs font-black uppercase tracking-[0.3em] mt-2 opacity-70 italic">Exclusively on NearbyDukan</p>
               </div>
             </div>
           )}
@@ -140,7 +140,7 @@ export default function HomePage() {
         <div className="bg-white rounded-sm shadow-fk flex flex-col">
           <div className="px-6 py-5 border-b border-fk-divider flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-bold text-fk-text">Top Deals on QuickMart</h2>
+              <h2 className="text-xl font-bold text-fk-text">Top Deals on NearbyDukan</h2>
               <p className="text-xs text-emerald-600 font-bold mt-1 tracking-tight">Handpicked premium items just for you</p>
             </div>
             <Link href="/products" className="bg-fk-blue text-white px-6 py-2.5 rounded-sm text-xs font-bold uppercase shadow-md hover:bg-fk-blue/90 transition-all">View All</Link>
@@ -171,7 +171,7 @@ export default function HomePage() {
                     ) : (
                       <div className="flex flex-col items-center gap-1 opacity-20">
                         <FiShoppingCart size={40} />
-                        <span className="text-[8px] font-black uppercase">QuickMart</span>
+                        <span className="text-[8px] font-black uppercase">NearbyDukan</span>
                       </div>
                     )}
                     <span className="absolute top-2 left-2 bg-emerald-500 text-white text-[7px] sm:text-[8px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-tighter">Top Deal</span>
@@ -230,7 +230,7 @@ export default function HomePage() {
       <section className="max-w-[1248px] mx-auto px-2 sm:px-4 mt-6">
         <div className="bg-white p-12 rounded-sm shadow-fk flex flex-col items-center text-center border-b-4 border-fb-blue relative overflow-hidden">
           <div className="absolute top-0 left-0 w-2 h-full bg-fk-yellow"></div>
-          <h3 className="text-2xl font-black italic text-fb-blue mb-4 tracking-tighter">Become a QuickMart Seller</h3>
+          <h3 className="text-2xl font-black italic text-fb-blue mb-4 tracking-tighter">Become a NearbyDukan Seller</h3>
           <p className="text-fk-muted max-w-xl mb-10 font-bold text-sm">Tap into your local market and deliver within 10-30 minutes. Join 5000+ happy vendors today!</p>
           <Link href="/register" className="bg-[#fb641b] text-white px-14 py-4 rounded-sm font-black text-sm uppercase shadow-xl hover:scale-105 transition-all tracking-wide">Register Now</Link>
           <div className="absolute top-[-20%] right-[-10%] w-48 h-48 bg-fb-blue/5 rounded-full blur-3xl"></div>

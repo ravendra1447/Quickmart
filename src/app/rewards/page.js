@@ -24,7 +24,7 @@ export default function RewardsPage() {
               <div className="text-white">
                  <div className="flex items-center gap-2 mb-2">
                     <span className="bg-fk-yellow text-[#212121] text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter">Premium</span>
-                    <h1 className="text-3xl font-black italic tracking-tight">QuickMart Plus Zone</h1>
+                    <h1 className="text-3xl font-black italic tracking-tight">NearbyDukan Plus Zone</h1>
                  </div>
                  <p className="text-blue-100 font-bold max-w-md">Experience the next level of shopping with exclusive rewards, free delivery, and priority support.</p>
               </div>
@@ -39,7 +39,7 @@ export default function RewardsPage() {
                        <FiZap className="text-[#212121]" size={20} />
                     </div>
                     <span className="text-5xl font-black text-white leading-none">240</span>
-                    <span className="text-fk-yellow font-black text-sm mb-1">QuickCoins</span>
+                    <span className="text-fk-yellow font-black text-sm mb-1">NearbyCoins</span>
                  </div>
                  <button className="w-full mt-6 bg-fk-yellow text-[#212121] py-3 rounded-xl font-black text-sm shadow-xl hover:scale-105 transition-all">REDEEM NOW</button>
               </div>
@@ -90,10 +90,10 @@ export default function RewardsPage() {
 
               {/* How it works */}
               <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-                 <h2 className="text-lg font-black text-slate-800 mb-8">How to earn QuickCoins?</h2>
+                 <h2 className="text-lg font-black text-slate-800 mb-8">How to earn NearbyCoins?</h2>
                  <div className="grid md:grid-cols-3 gap-8">
                     {[
-                       { step: '01', title: 'Shop Local', desc: 'Every ₹100 spent on QuickMart earns you 2 QuickCoins.' },
+                       { step: '01', title: 'Shop Local', desc: 'Every ₹100 spent on NearbyDukan earns you 2 NearbyCoins.' },
                        { step: '02', title: 'Fast Review', desc: 'Review your local seller to earn 5 extra coins instantly.' },
                        { step: '03', title: 'Daily Login', desc: 'Login every day to keep your streak and win bonus coins.' }
                     ].map((s, i) => (
@@ -116,7 +116,7 @@ export default function RewardsPage() {
               <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                  <div className="bg-dark-900 p-6 text-white text-center">
                     <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60 mb-2">Member Since 2024</p>
-                    <h3 className="text-xl font-black tracking-tight">{user?.name || 'QuickMart User'}</h3>
+                    <h3 className="text-xl font-black tracking-tight">{user?.name || 'NearbyDukan User'}</h3>
                     <div className="mt-4 inline-flex items-center gap-2 bg-white/10 px-4 py-1.5 rounded-full text-xs font-black">
                        <FiStar className="text-fk-yellow" /> SILVER MEMBER
                     </div>

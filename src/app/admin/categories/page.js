@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { FiPlus, FiEdit, FiTrash2, FiImage, FiUploadCloud, FiXCircle, FiGrid, FiLayers } from 'react-icons/fi';
-import { adminAPI, commonAPI } from '@/lib/api';
+import { adminAPI, commonAPI, getImageUrl } from '@/lib/api';
 import toast from 'react-hot-toast';
 
 export default function AdminCategories() {
@@ -102,7 +102,7 @@ export default function AdminCategories() {
                 <label className={labelClass}>Category Icon/Image *</label>
                 <div className="flex items-center gap-6">
                   <div className="w-24 h-24 rounded-2xl bg-slate-50 border-2 border-dashed border-slate-200 flex items-center justify-center overflow-hidden">
-                    {form.image_url ? <img src={form.image_url} className="w-full h-full object-contain" /> : <FiImage className="text-slate-300" size={32} />}
+                    {form.image_url ? <img src={getImageUrl(form.image_url)} className="w-full h-full object-contain" /> : <FiImage className="text-slate-300" size={32} />}
                   </div>
                   <label className="cursor-pointer bg-slate-100 hover:bg-fb-blue hover:text-white px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all">
                     {uploading ? 'Uploading...' : 'Upload Image'}
@@ -129,7 +129,7 @@ export default function AdminCategories() {
             <div className="flex flex-wrap items-center justify-between p-6 bg-slate-50/30 group-hover:bg-slate-50/80 transition-colors border-b border-slate-50">
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 bg-white rounded-2xl border border-slate-100 p-2 shadow-sm">
-                  <img src={cat.image_url || 'https://via.placeholder.com/128'} className="w-full h-full object-contain" />
+                  <img src={getImageUrl(cat.image_url) || 'https://via.placeholder.com/128'} className="w-full h-full object-contain" />
                 </div>
                 <div>
                   <h3 className="text-xl font-black text-slate-900">{cat.name}</h3>
@@ -150,7 +150,7 @@ export default function AdminCategories() {
                     <label className={labelClass}>Subcategory Image *</label>
                     <div className="flex items-center gap-4">
                       <div className="w-16 h-16 rounded-xl bg-white border-2 border-dashed border-slate-300 flex items-center justify-center overflow-hidden shrink-0">
-                        {subForm.image_url ? <img src={subForm.image_url} className="w-full h-full object-contain p-1" /> : <FiImage className="text-slate-300" />}
+                        {subForm.image_url ? <img src={getImageUrl(subForm.image_url)} className="w-full h-full object-contain p-1" /> : <FiImage className="text-slate-300" />}
                       </div>
                       <label className="cursor-pointer bg-white border border-slate-200 hover:border-fk-blue hover:text-fk-blue px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all">
                         {uploading ? 'Uploading...' : 'Upload'}
@@ -176,7 +176,7 @@ export default function AdminCategories() {
                   {cat.subcategories.map((sub) => (
                     <div key={sub.id} className="relative flex flex-col items-center justify-center p-4 bg-slate-50 border border-slate-100 rounded-2xl group/sub hover:border-fk-blue transition-all">
                       <div className="w-12 h-12 mb-3 bg-white rounded-xl shadow-sm overflow-hidden flex items-center justify-center p-1">
-                         {sub.image_url ? <img src={sub.image_url} className="w-full h-full object-contain" /> : <FiImage className="text-slate-300" />}
+                         {sub.image_url ? <img src={getImageUrl(sub.image_url)} className="w-full h-full object-contain" /> : <FiImage className="text-slate-300" />}
                       </div>
                       <span className="text-xs font-bold text-slate-700 text-center leading-tight">{sub.name}</span>
                       <button onClick={() => deleteSub(sub.id)} className="absolute top-2 right-2 p-1.5 bg-white text-slate-300 rounded-lg hover:text-white hover:bg-rose-500 shadow-sm transition-all opacity-0 group-hover/sub:opacity-100"><FiTrash2 size={12} /></button>

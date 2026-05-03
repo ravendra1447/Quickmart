@@ -16,11 +16,11 @@ export default function SupportPage() {
   ];
 
   const faqs = [
-    'How do I track my QuickMart order?',
+    'How do I track my NearbyDukan order?',
     'What is the return policy for fresh items?',
     'How can I get a refund for a cancelled order?',
     'I want to change my delivery address',
-    'How do I become a QuickMart Plus member?'
+    'How do I become a NearbyDukan Plus member?'
   ];
 
   return (
@@ -104,7 +104,7 @@ export default function SupportPage() {
                     <FiPhone size={24} />
                  </div>
                  <h4 className="font-black text-slate-800 mb-1">Call Support</h4>
-                 <p className="text-[10px] font-black text-[#fb641b] uppercase mb-4">1800-QUICK-MART</p>
+                 <p className="text-[10px] font-black text-[#fb641b] uppercase mb-4">1800-NEARBY-DKN</p>
                  <button className="text-xs font-black text-fk-blue border border-fk-blue px-6 py-2 rounded-full hover:bg-fk-blue hover:text-white transition-all uppercase tracking-wide">Request Call</button>
               </div>
            </div>

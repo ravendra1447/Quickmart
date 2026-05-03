@@ -6,7 +6,7 @@ import Footer from '@/components/Footer';
 import ChatWidget from '@/components/ChatWidget';
 
 export const metadata = {
-  title: 'QuickMart - Multivendor eCommerce Platform',
+  title: 'NearbyDukan - Multivendor eCommerce Platform',
   description: 'Shop from multiple trusted sellers. Fresh groceries, daily essentials, and more delivered to your doorstep.',
   keywords: 'ecommerce, multivendor, online shopping, groceries, quick delivery',
 };

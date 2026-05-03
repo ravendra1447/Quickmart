@@ -33,6 +33,7 @@ export default function SellerOrders() {
   const [activeItem, setActiveItem] = useState(null);
   const [deliveryBoys, setDeliveryBoys] = useState([]);
   const [assigning, setAssigning] = useState(false);
+  const [selectedPartner, setSelectedPartner] = useState(null);
 
 
   const fetchOrders = () => {
@@ -67,15 +68,22 @@ export default function SellerOrders() {
 
   const handleAssignClick = (item) => {
     setActiveItem(item);
+    setSelectedPartner(null);
     setShowAssignModal(true);
   };
 
-  const handleAssignSubmit = async (partnerId) => {
+  const handleAssignSubmit = async () => {
+    if (!selectedPartner) {
+      toast.error('Please select a delivery partner');
+      return;
+    }
+    
     setAssigning(true);
     try {
-      await sellerAPI.assignOrder(activeItem.id, partnerId);
+      await sellerAPI.assignOrder(activeItem.id, selectedPartner);
       toast.success('Order assigned successfully! 🚚');
       setShowAssignModal(false);
+      setSelectedPartner(null);
       fetchOrders();
     } catch (err) {
       toast.error(err.message || 'Failed to assign');
@@ -281,30 +289,68 @@ export default function SellerOrders() {
                 </div>
               ) : (
                 deliveryBoys.map(boy => (
-                  <button 
+                  <div 
                     key={boy.id} 
-                    onClick={() => handleAssignSubmit(boy.id)}
-                    disabled={assigning}
                     className="w-full flex items-center justify-between p-4 rounded-2xl border-2 border-slate-100 hover:border-fk-blue hover:bg-blue-50 transition-all text-left group"
                   >
                     <div className="flex items-center gap-4">
+                      <input 
+                        type="radio" 
+                        name="deliveryPartner"
+                        value={boy.id}
+                        onChange={() => setSelectedPartner(boy.id)}
+                        checked={selectedPartner === boy.id}
+                        className="w-4 h-4 text-fk-blue focus:ring-fk-blue focus:ring-2"
+                      />
                       <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-white group-hover:text-fk-blue transition-colors">
                         <FiUser size={24} />
                       </div>
                       <div>
-                        <p className="font-black text-dark-900 leading-tight">{boy.name || boy.user?.name || 'Partner'}</p>
+                        <p className="font-black text-dark-900 leading-tight">
+                          {boy.name || boy.user?.name || 'Partner'} 
+                          <span className="text-xs font-normal text-slate-500 ml-2">(ID: {boy.id})</span>
+                        </p>
                         <p className="text-xs font-bold text-slate-400 mt-0.5">{boy.phone || boy.user?.phone}</p>
+                        {boy.type === 'general' && (
+                          <p className="text-[10px] text-blue-600 font-medium mt-1">General Partner</p>
+                        )}
                       </div>
                     </div>
                     <div className={`px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-wider ${boy.status === 'idle' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
                       {boy.status}
                     </div>
-                  </button>
+                  </div>
                 ))
               )}
             </div>
 
-            <p className="mt-8 text-center text-[10px] font-bold text-dark-400 uppercase tracking-widest">
+            <div className="mt-6 flex gap-3">
+              <button 
+                onClick={() => setShowAssignModal(false)}
+                className="flex-1 px-4 py-3 border-2 border-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-50 transition-all"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleAssignSubmit}
+                disabled={!selectedPartner || assigning}
+                className="flex-1 px-4 py-3 bg-fk-blue text-white font-black rounded-xl hover:bg-fk-blue/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {assigning ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    Assigning...
+                  </>
+                ) : (
+                  <>
+                    <FiTruck size={16} />
+                    Assign Partner
+                  </>
+                )}
+              </button>
+            </div>
+
+            <p className="mt-4 text-center text-[10px] font-bold text-dark-400 uppercase tracking-widest">
               Only active partners are shown here.
             </p>
           </div>

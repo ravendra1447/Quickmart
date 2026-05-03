@@ -2,7 +2,7 @@ export default function AdvertisePage() {
   return (
     <div className="min-h-screen bg-white pt-28 pb-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto text-center">
-        <h1 className="text-4xl sm:text-5xl font-black text-dark-900 mb-6 tracking-tight">Advertise with <span className="text-[#fb641b]">QuickMart</span></h1>
+        <h1 className="text-4xl sm:text-5xl font-black text-dark-900 mb-6 tracking-tight">Advertise with <span className="text-[#fb641b]">NearbyDukan</span></h1>
         <p className="text-lg text-dark-500 mb-12">Reach millions of shoppers every day and grow your brand exponentially.</p>
         
         <div className="grid sm:grid-cols-3 gap-8 mb-16 text-left">

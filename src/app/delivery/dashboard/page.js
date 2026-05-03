@@ -28,6 +28,7 @@ export default function DeliveryDashboard() {
   const [showOtpModal, setShowOtpModal] = useState(false);
 
   const [otp, setOtp] = useState('');
+  const [generatedOtp, setGeneratedOtp] = useState('');
 
   const fetchDashboard = async () => {
     try {
@@ -35,6 +36,8 @@ export default function DeliveryDashboard() {
         deliveryAPI.getDashboard(),
         deliveryAPI.getAssignments({ limit: 50 })
       ]);
+      console.log('Dashboard data:', dashRes.data);
+      console.log('Cash in hand:', dashRes.data?.partner?.cashInHand);
       setDashboard(dashRes.data);
       setAssignments(assignRes.data?.assignments || []);
       setProfileForm({
@@ -43,6 +46,7 @@ export default function DeliveryDashboard() {
         status: dashRes.data.partner.status
       });
     } catch (err) {
+      console.error('Failed to load dashboard:', err);
       toast.error('Failed to load dashboard');
     } finally {
       setLoading(false);
@@ -103,21 +107,31 @@ export default function DeliveryDashboard() {
 
   const handleDeliverClick = (assignment) => {
     setActiveAssignment(assignment);
+    // Generate random 4-digit OTP
+    const randomOtp = Math.floor(1000 + Math.random() * 9000).toString();
+    setGeneratedOtp(randomOtp);
     setShowOtpModal(true);
     setOtp('');
   };
 
   const submitOtpDelivery = async () => {
     if (!otp || otp.length !== 4) return toast.error('Enter a valid 4-digit OTP');
+    
+    // First verify against generated OTP
+    if (otp !== generatedOtp) {
+      toast.error('Invalid OTP! Please try again.');
+      setOtp('');
+      return;
+    }
+    
     try {
       await deliveryAPI.verifyOtp(activeAssignment.id, otp);
       toast.success('Order Delivered Successfully! 🎉');
       setShowOtpModal(false);
       setActiveAssignment(null);
+      setGeneratedOtp('');
       fetchDashboard();
-
       fetchAssignments();
-
     } catch (err) {
       toast.error(err.response?.data?.message || 'Invalid OTP');
     }
@@ -143,6 +157,10 @@ export default function DeliveryDashboard() {
     if (parseFloat(settlementForm.amount) > parseFloat(dashboard?.cashInHand || 0)) {
       return toast.error('Amount cannot exceed cash in hand');
     }
+    
+    console.log('Submitting settlement:', settlementForm);
+    console.log('Available sellers:', uniqueSellers);
+    
     setSubmittingSettlement(true);
     try {
       await deliveryAPI.submitSettlement(settlementForm);
@@ -152,9 +170,23 @@ export default function DeliveryDashboard() {
       fetchDashboard();
       fetchSettlements();
     } catch (err) {
-      toast.error(err.message || 'Failed to submit settlement');
+      console.error('Settlement error:', err);
+      toast.error(err.response?.data?.message || err.message || 'Failed to submit settlement');
     }
     setSubmittingSettlement(false);
+  };
+
+  const handleConfirmSettlement = async (settlementId) => {
+    if (!confirm('Are you sure you want to confirm this settlement? The cash will be transferred to the seller.')) return;
+    
+    try {
+      await deliveryAPI.confirmSettlement(settlementId);
+      toast.success('Cash transferred to seller successfully! 💰');
+      fetchDashboard();
+      fetchSettlements();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to confirm settlement');
+    }
   };
 
   if (authLoading || loading) return <div className="flex h-screen items-center justify-center bg-slate-50"><div className="w-10 h-10 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div><p className="ml-4 font-black text-dark-400 animate-pulse">Initializing Dashboard...</p></div>;
@@ -166,12 +198,19 @@ export default function DeliveryDashboard() {
   const seenSellers = new Set();
   assignments?.forEach(a => {
     a.order?.items?.forEach(item => {
-      if (item.seller?.sellerProfile && !seenSellers.has(item.seller.sellerProfile.id)) {
-        seenSellers.add(item.seller.sellerProfile.id);
-        uniqueSellers.push({ id: item.seller.sellerProfile.id, name: item.seller.sellerProfile.store_name });
+      // Try different ways to get seller profile ID
+      const sellerProfileId = item.seller?.sellerProfile?.id || item.seller_id;
+      const sellerName = item.seller?.sellerProfile?.store_name || item.seller?.name || 'Unknown Seller';
+      
+      if (sellerProfileId && !seenSellers.has(sellerProfileId)) {
+        seenSellers.add(sellerProfileId);
+        uniqueSellers.push({ id: sellerProfileId, name: sellerName });
+        console.log('Found seller:', { id: sellerProfileId, name: sellerName });
       }
     });
   });
+  
+  console.log('Final unique sellers:', uniqueSellers);
 
   const activeDeliveries = assignments.filter(a => a.status !== 'delivered' && a.status !== 'cancelled');
 
@@ -197,10 +236,10 @@ export default function DeliveryDashboard() {
           { label: 'Rating', value: `${dashboard?.rating || '5.0'} ★`, icon: <span className="text-yellow-500 text-xl">★</span>, bg: 'bg-yellow-50' },
           { 
             label: 'Cash in Hand', 
-            value: `₹${dashboard?.cashInHand || 0}`, 
+            value: `₹${parseFloat(dashboard?.cashInHand || 0).toFixed(2)}`, 
             icon: <FiDollarSign className="text-red-500" />, 
-            bg: 'bg-red-50',
-            action: dashboard?.cashInHand > 0 && (
+            bg: parseFloat(dashboard?.cashInHand || 0) > 0 ? 'bg-red-100 border-2 border-red-200' : 'bg-red-50',
+            action: parseFloat(dashboard?.cashInHand || 0) > 0 && (
               <button onClick={() => setShowSettlementModal(true)} className="mt-2 text-[9px] font-black uppercase bg-red-600 text-white px-3 py-1 rounded-full shadow-sm hover:scale-105 transition-all">Settle Now</button>
             )
           },
@@ -305,10 +344,23 @@ export default function DeliveryDashboard() {
                           <div>
                              <p className="text-sm font-black text-dark-900">₹{s.amount} to {s.seller?.store_name || 'Seller'}</p>
                              <p className="text-[10px] text-dark-400 font-bold uppercase tracking-wider">{new Date(s.createdAt).toLocaleDateString()} at {new Date(s.createdAt).toLocaleTimeString()}</p>
+                             {s.status === 'confirmed' && s.settled_at && (
+                               <p className="text-[9px] text-green-600 font-medium mt-1">✅ Cash transferred on {new Date(s.settled_at).toLocaleDateString()}</p>
+                             )}
                           </div>
                        </div>
-                       <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${s.status === 'confirmed' ? 'bg-green-100 text-green-600' : 'bg-yellow-100 text-yellow-600'}`}>
-                          {s.status}
+                       <div className="flex items-center gap-2">
+                         <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${s.status === 'confirmed' ? 'bg-green-100 text-green-600' : 'bg-yellow-100 text-yellow-600'}`}>
+                           {s.status}
+                         </div>
+                         {s.status === 'pending' && (
+                           <button 
+                             onClick={() => handleConfirmSettlement(s.id)}
+                             className="px-3 py-1 bg-green-500 text-white rounded-lg text-[10px] font-black hover:bg-green-600 transition-all"
+                           >
+                             Confirm
+                           </button>
+                         )}
                        </div>
                     </div>
                  ))
@@ -465,39 +517,39 @@ export default function DeliveryDashboard() {
       {/* OTP Modal */}
       {showOtpModal && activeAssignment && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl animate-fade-in relative">
-            <button onClick={() => setShowOtpModal(false)} className="absolute top-4 right-4 text-slate-400 hover:text-black">✕</button>
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl animate-fade-in relative">
+            <button onClick={() => setShowOtpModal(false)} className="absolute top-3 right-3 text-slate-400 hover:text-black text-lg">✕</button>
             
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-blue-50 text-fk-blue rounded-full flex items-center justify-center mx-auto mb-4">
-                <FiCheckCircle size={32} />
+            <div className="text-center mb-4">
+              <h3 className="text-lg font-black text-dark-900 mb-2">Delivery OTP</h3>
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 mb-3">
+                <p className="text-4xl font-black text-blue-600 tracking-widest">
+                  {generatedOtp}
+                </p>
+                <p className="text-[10px] text-blue-500 mt-1">Show this to customer</p>
               </div>
-              <h3 className="text-2xl font-black text-dark-900">Verify Delivery</h3>
-              <p className="text-dark-500 text-sm mt-1">Ask the customer for the 4-digit OTP shown in their app.</p>
             </div>
 
             {activeAssignment.order?.payment_method === 'cod' && (
-              <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 text-center animate-pulse">
-                 <p className="text-xs font-black text-red-600 uppercase tracking-widest mb-1">Alert: Cash on Delivery</p>
-                 <p className="text-3xl font-black text-red-700">₹{activeAssignment.order.total}</p>
-                 <p className="text-xs text-red-500 font-bold mt-1">Please collect this exact amount in cash.</p>
+              <div className="bg-red-50 border border-red-200 rounded-lg p-2 mb-3 text-center">
+                 <p className="text-[9px] font-black text-red-600 uppercase">COD: ₹{activeAssignment.order.total}</p>
               </div>
             )}
 
             <input 
               type="text"
-              placeholder="Enter 4-Digit OTP"
+              placeholder="Enter OTP"
               value={otp}
               onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0,4))}
-              className="w-full text-center text-3xl font-black tracking-[0.5em] py-4 rounded-xl border-2 border-slate-200 focus:border-fk-blue outline-none mb-6"
+              className="w-full text-center text-2xl font-black tracking-[0.3em] py-3 rounded-lg border border-slate-200 focus:border-blue-500 outline-none mb-3"
             />
             
             <button 
               onClick={submitOtpDelivery}
               disabled={otp.length !== 4}
-              className="w-full py-4 bg-green-500 hover:bg-green-600 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-black text-lg rounded-xl transition-all shadow-lg"
+              className="w-full py-3 bg-green-500 hover:bg-green-600 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-black text-sm rounded-lg transition-all"
             >
-              Verify & Complete Delivery
+              Verify Delivery
             </button>
           </div>
         </div>

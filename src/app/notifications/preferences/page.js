@@ -21,9 +21,9 @@ export default function NotificationPreferences() {
   const sections = [
     { id: 'orders', title: 'My Orders', desc: 'Latest updates on your orders' },
     { id: 'reminders', title: 'Reminders', desc: 'Price Drops, Back-in-stock Products, etc.' },
-    { id: 'recommendations', title: 'Recommendations by QuickMart', desc: 'Products, offers and curated content based on your interest' },
+    { id: 'recommendations', title: 'Recommendations by NearbyDukan', desc: 'Products, offers and curated content based on your interest' },
     { id: 'offers', title: 'New Offers', desc: 'Top Deals and more' },
-    { id: 'community', title: 'My QuickMart Community', desc: 'Profile updates, Newsletters, etc.' },
+    { id: 'community', title: 'My NearbyDukan Community', desc: 'Profile updates, Newsletters, etc.' },
     { id: 'feedback', title: 'Feedback and Review', desc: 'Rating and Reviews for your purchase' }
   ];
 

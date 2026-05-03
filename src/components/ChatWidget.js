@@ -96,7 +96,7 @@ export default function ChatWidget() {
                 <FiHeadphones />
               </div>
               <div>
-                <h4 className="text-sm font-black tracking-tight">QuickMart Support</h4>
+                <h4 className="text-sm font-black tracking-tight">NearbyDukan Support</h4>
                 <p className="text-[10px] font-bold opacity-80">Online | Average response: 2m</p>
               </div>
             </div>

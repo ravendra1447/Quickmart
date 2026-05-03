@@ -40,7 +40,7 @@ export default function AdminSetup() {
             <div className="w-20 h-20 bg-white/20 backdrop-blur-md rounded-3xl flex items-center justify-center mx-auto mb-6 border border-white/30 shadow-xl">
               <FiShield size={40} />
             </div>
-            <h1 className="text-3xl font-black tracking-tight mb-2">QuickMart Setup</h1>
+            <h1 className="text-3xl font-black tracking-tight mb-2">NearbyDukan Setup</h1>
             <p className="text-white/80 font-bold text-sm uppercase tracking-widest">Initialize Super Admin Account</p>
           </div>
           <div className="absolute top-[-20%] right-[-10%] w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
