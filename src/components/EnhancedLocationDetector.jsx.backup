@@ -1,0 +1,12 @@
+// Backup of unused EnhancedLocationDetector component
+'use client';
+import { useState, useEffect } from 'react';
+import { FiMapPin, FiLoader, FiRefreshCw, FiCrosshair } from 'react-icons/fi';
+
+export default function EnhancedLocationDetector() {
+  return (
+    <div className="text-xs text-gray-600">
+      EnhancedLocationDetector - Not Used (Backup Created)
+    </div>
+  );
+}

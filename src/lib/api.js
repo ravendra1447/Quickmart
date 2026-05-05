@@ -5,6 +5,14 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 export const getImageUrl = (path) => {
   if (!path) return null;
   if (path.startsWith('http')) return path;
+  
+  // If path already starts with /uploads/, just prepend base URL
+  if (path.startsWith('/uploads/')) {
+    const baseUrl = API_BASE.replace('/api', '');
+    return `${baseUrl}${path}`;
+  }
+  
+  // For other paths, handle normally
   const baseUrl = API_BASE.replace('/api', '');
   return `${baseUrl}/${path.startsWith('/') ? path.slice(1) : path}`;
 };

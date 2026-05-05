@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState, Suspense } from 'react';
-import { FiUser, FiMail, FiPhone, FiLock, FiLogOut, FiShoppingBag, FiMapPin, FiCreditCard, FiHelpCircle, FiArrowRight, FiShield, FiRefreshCw } from 'react-icons/fi';
+import { FiUser, FiMail, FiPhone, FiLock, FiLogOut, FiShoppingBag, FiMapPin, FiCreditCard, FiHelpCircle, FiArrowRight, FiShield, FiRefreshCw, FiHeart, FiStar } from 'react-icons/fi';
 import useAuthStore from '@/store/authStore';
 import { authAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
@@ -112,6 +112,8 @@ function ProfileContent() {
             </div>
             <div className="pl-14 pb-2">
                <button onClick={() => setActiveTab('profile')} className={`w-full text-left py-3 text-sm transition-colors font-medium ${activeTab === 'profile' ? 'text-fk-blue font-bold' : 'text-fk-text'}`}>Profile Information</button>
+               <button onClick={() => setActiveTab('wishlist')} className={`w-full text-left py-3 text-sm transition-colors font-medium ${activeTab === 'wishlist' ? 'text-fk-blue font-bold' : 'text-fk-text'}`}>My Wishlist</button>
+               <button onClick={() => setActiveTab('reviews')} className={`w-full text-left py-3 text-sm transition-colors font-medium ${activeTab === 'reviews' ? 'text-fk-blue font-bold' : 'text-fk-text'}`}>My Reviews</button>
                <button onClick={() => window.location.href = '/addresses'} className="w-full text-left py-3 text-sm text-fk-text transition-colors font-medium hover:text-fk-blue">Manage Addresses</button>
                <button onClick={() => setActiveTab('bank')} className={`w-full text-left py-3 text-sm transition-colors font-medium ${activeTab === 'bank' ? 'text-fk-blue font-bold' : 'text-fk-text'}`}>Bank / UPI Details</button>
                <button onClick={() => setActiveTab('security')} className={`w-full text-left py-3 text-sm transition-colors font-medium ${activeTab === 'security' ? 'text-fk-blue font-bold' : 'text-fk-text'}`}>Change Password</button>
@@ -220,6 +222,30 @@ function ProfileContent() {
           <div className="bg-white p-4 md:p-8 shadow-fk rounded-sm animate-fk-fade">
             <h2 className="text-lg font-bold text-fk-text mb-6 flex items-center gap-2"><FiHelpCircle className="text-fk-blue" /> Customer Support</h2>
             <SupportSystem preselectedOrder={preselectedOrder} />
+          </div>
+        )}
+
+        {activeTab === 'wishlist' && (
+          <div className="bg-white p-8 shadow-fk rounded-sm animate-fk-fade">
+             <h2 className="text-lg font-bold text-fk-text mb-6 flex items-center gap-2"><FiHeart className="text-fk-blue" /> My Wishlist</h2>
+             <div className="p-12 text-center border-2 border-dashed border-fk-divider rounded-2xl">
+                <div className="w-16 h-16 bg-fk-bg rounded-full flex items-center justify-center mx-auto mb-4 text-fk-muted"><FiHeart size={32} /></div>
+                <h3 className="text-lg font-bold text-fk-text">Your wishlist is empty</h3>
+                <p className="text-sm text-fk-muted mt-2 mb-8 max-w-sm mx-auto">Save your favorite products here so you can find them easily later.</p>
+                <button onClick={() => window.location.href = '/products'} className="btn-fk-primary px-10">Browse Products</button>
+             </div>
+          </div>
+        )}
+
+        {activeTab === 'reviews' && (
+          <div className="bg-white p-8 shadow-fk rounded-sm animate-fk-fade">
+             <h2 className="text-lg font-bold text-fk-text mb-6 flex items-center gap-2"><FiStar className="text-fk-blue" /> My Reviews</h2>
+             <div className="p-12 text-center border-2 border-dashed border-fk-divider rounded-2xl">
+                <div className="w-16 h-16 bg-fk-bg rounded-full flex items-center justify-center mx-auto mb-4 text-fk-muted"><FiStar size={32} /></div>
+                <h3 className="text-lg font-bold text-fk-text">No reviews yet</h3>
+                <p className="text-sm text-fk-muted mt-2 mb-8 max-w-sm mx-auto">Share your experience with products you've purchased to help other customers.</p>
+                <button onClick={() => window.location.href = '/orders'} className="btn-fk-primary px-10">View Orders to Review</button>
+             </div>
           </div>
         )}
 

@@ -1,0 +1,24 @@
+// Backup of unused AddressHeader component
+'use client';
+import { useState, useEffect } from 'react';
+import { FiMapPin, FiChevronDown, FiEdit2, FiCheck } from 'react-icons/fi';
+
+export default function AddressHeader() {
+  const [userAddress, setUserAddress] = useState(null);
+  const [showAddressDropdown, setShowAddressDropdown] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+
+  useEffect(() => {
+    // Get address from localStorage
+    const storedAddress = localStorage.getItem('userAddress');
+    if (storedAddress) {
+      setUserAddress(JSON.parse(storedAddress));
+    }
+  }, []);
+
+  return (
+    <div className="text-xs text-gray-600">
+      AddressHeader - Not Used (Backup Created)
+    </div>
+  );
+}

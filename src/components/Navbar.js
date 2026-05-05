@@ -32,6 +32,51 @@ export default function Navbar() {
     if (mounted && user) fetchCart(); 
   }, [mounted, user, fetchCart]);
 
+  // Load customer address
+  useEffect(() => {
+    const updateAddressDisplay = () => {
+      const addressElement = document.getElementById('customer-address');
+      if (addressElement) {
+        // Try to get address from localStorage
+        const storedAddress = localStorage.getItem('userAddress');
+        if (storedAddress) {
+          const address = JSON.parse(storedAddress);
+          addressElement.textContent = `${address.area}, ${address.city}`;
+        } else {
+          // Try to get location and fetch address
+          const storedLocation = localStorage.getItem('userLocation');
+          if (storedLocation) {
+            const location = JSON.parse(storedLocation);
+            addressElement.textContent = `Detecting address for ${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}...`;
+            
+            // Fetch address
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${location.latitude}&lon=${location.longitude}&zoom=18&addressdetails=1`)
+              .then(res => res.json())
+              .then(data => {
+                const addressData = {
+                  area: data.address?.suburb || data.address?.neighbourhood || data.address?.road || 'Unknown Area',
+                  city: data.address?.city || data.address?.town || data.address?.village || 'Unknown City'
+                };
+                addressElement.textContent = `${addressData.area}, ${addressData.city}`;
+                localStorage.setItem('userAddress', JSON.stringify(addressData));
+              })
+              .catch(() => {
+                addressElement.textContent = 'Location detected';
+              });
+          } else {
+            addressElement.textContent = 'Set your location';
+          }
+        }
+      }
+    };
+
+    updateAddressDisplay();
+    
+    // Update every 5 seconds in case address changes
+    const interval = setInterval(updateAddressDisplay, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
   const itemCount = mounted ? (cartItems?.length || 0) : 0;
   const handleLogout = () => { logout(); setIsSidebarOpen(false); window.location.href = '/'; };
 
@@ -60,6 +105,7 @@ export default function Navbar() {
               </span>
             </Link>
 
+            
             {/* Mobile Actions (Cart & Login) */}
             <div className="flex items-center gap-4 md:hidden">
               <NotificationBell />
@@ -178,15 +224,13 @@ export default function Navbar() {
 
         </div>
 
-        {/* Brand New Location Bar (Flipkart Style) - Now visible on mobile */}
+        {/* Customer Address Bar */}
         <div className="bg-[#f0f2f5] border-b border-dark-50 py-1.5">
            <div className="max-w-[1248px] mx-auto px-4 flex items-center gap-2 text-[#212121]">
               <FiMapPin className="text-dark-500" size={14} />
-              <span className="text-[10px] sm:text-[11px] font-bold">Deliver to</span>
-              <button onClick={() => window.location.href='/checkout'} className="text-[10px] sm:text-[11px] font-black hover:text-fk-blue flex items-center gap-1 transition-colors truncate max-w-[200px]">
-                 {user?.addresses?.[0] ? `${user.addresses[0].city} ${user.addresses[0].pincode}` : 'Select delivery location'}
-                 <FiChevronDown size={12} className="flex-shrink-0" />
-              </button>
+              <span id="customer-address" className="text-[10px] sm:text-[11px] font-black truncate">
+                Loading address...
+              </span>
            </div>
         </div>
       </nav>
@@ -210,6 +254,7 @@ export default function Navbar() {
         </div>
 
         <div className="overflow-y-auto h-full pb-20">
+          
           <div className="py-2 border-b border-slate-100">
             {user ? (
               <>

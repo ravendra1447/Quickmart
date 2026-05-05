@@ -189,6 +189,100 @@ export default function DeliveryDashboard() {
     }
   };
 
+  const getCurrentLocation = () => {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error('Geolocation is not supported by this browser.'));
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          resolve({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+        },
+        (error) => {
+          reject(error);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 60000
+        }
+      );
+    });
+  };
+
+  const openGoogleMaps = async (assignment) => {
+    try {
+      let deliveryBoyLocation = null;
+      
+      // Try to get delivery boy's current location
+      try {
+        deliveryBoyLocation = await getCurrentLocation();
+      } catch (error) {
+        console.log('Could not get current location:', error);
+        // Fallback to partner location from assignment if available
+        if (assignment.partner?.lat && assignment.partner?.lng) {
+          deliveryBoyLocation = {
+            lat: assignment.partner.lat,
+            lng: assignment.partner.lng
+          };
+        }
+      }
+
+      // Get complete customer address with proper formatting
+      let customerAddress;
+      if (assignment.assignment_type === 'pickup') {
+        customerAddress = 'Central Hub sorting center, Delhi, India';
+      } else {
+        // Build complete customer address
+        const addressParts = [];
+        
+        if (assignment.order?.shipping_address) {
+          addressParts.push(assignment.order.shipping_address);
+        }
+        if (assignment.order?.shipping_city) {
+          addressParts.push(assignment.order.shipping_city);
+        }
+        if (assignment.order?.shipping_state) {
+          addressParts.push(assignment.order.shipping_state);
+        }
+        if (assignment.order?.shipping_pincode) {
+          addressParts.push(assignment.order.shipping_pincode);
+        }
+        
+        customerAddress = addressParts.length > 0 
+          ? `${addressParts.join(', ')}, India`
+          : 'Customer Location, India';
+      }
+
+      let googleMapsUrl;
+      
+      if (deliveryBoyLocation) {
+        // Create a route from delivery boy to customer with complete address
+        const origin = `${deliveryBoyLocation.lat},${deliveryBoyLocation.lng}`;
+        const destination = encodeURIComponent(customerAddress);
+        googleMapsUrl = `https://www.google.com/maps/dir/${origin}/${destination}`;
+      } else {
+        // Just search for customer address if no delivery location available
+        googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(customerAddress)}`;
+      }
+
+      console.log('Opening Google Maps with URL:', googleMapsUrl);
+      console.log('Customer Address:', customerAddress);
+      
+      // Open Google Maps in new tab
+      window.open(googleMapsUrl, '_blank');
+      
+    } catch (error) {
+      console.error('Error opening Google Maps:', error);
+      toast.error('Failed to open Google Maps');
+    }
+  };
+
   if (authLoading || loading) return <div className="flex h-screen items-center justify-center bg-slate-50"><div className="w-10 h-10 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div><p className="ml-4 font-black text-dark-400 animate-pulse">Initializing Dashboard...</p></div>;
 
   if (!user) return null; // Let the api interceptor handle redirect
@@ -429,6 +523,13 @@ export default function DeliveryDashboard() {
                            <FiPhone className="text-blue-500 flex-shrink-0"/> 
                            {a.assignment_type === 'pickup' ? 'Central Sorting' : (a.order?.shipping_phone || a.order?.user?.phone || 'N/A')}
                         </p>
+                        <button
+                          onClick={() => openGoogleMaps(a)}
+                          className="mt-2 w-full py-2 bg-red-500 hover:bg-red-600 text-white font-black text-xs rounded-lg transition-all flex items-center justify-center gap-2 shadow-md"
+                        >
+                          <FiMapPin size={14} />
+                          View on Google Maps
+                        </button>
                       </div>
 
                     </div>

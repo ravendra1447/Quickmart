@@ -94,8 +94,12 @@ export default function SellerStoreSettings() {
   });
 
   useEffect(() => {
+    console.log('🔄 Fetching seller profile...');
+    
     sellerAPI.getProfile().then(r => {
+      console.log('✅ Seller profile response:', r);
       const p = r.data;
+      console.log('📋 Profile data:', p);
       setProfile(p);
       setForm({
         store_name: p.sellerProfile?.store_name || '',
@@ -113,7 +117,10 @@ export default function SellerStoreSettings() {
         ifsc: p.bank_details?.ifsc || '',
         bank_name: p.bank_details?.bank_name || '',
       });
-    }).catch(() => {}).finally(() => setLoading(false));
+    }).catch((error) => {
+      console.error('❌ Error fetching seller profile:', error);
+      toast.error('Failed to load profile. Please try again.');
+    }).finally(() => setLoading(false));
   }, []);
 
   const handleSave = async (e) => {
@@ -129,7 +136,12 @@ export default function SellerStoreSettings() {
       toast.loading('Detecting location...');
       navigator.geolocation.getCurrentPosition(
         (pos) => { 
-          setForm(f => ({ ...f, latitude: pos.coords.latitude, longitude: pos.coords.longitude })); 
+          // Only update lat/lng, keep other values unchanged
+          setForm(f => ({ 
+            ...f, 
+            latitude: pos.coords.latitude, 
+            longitude: pos.coords.longitude 
+          })); 
           toast.dismiss();
           toast.success('Location updated!'); 
         },
@@ -218,9 +230,9 @@ export default function SellerStoreSettings() {
               </div>
               <div className="mt-8 flex flex-wrap items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
                  <button type="button" onClick={detectLocation} className="px-6 py-3 bg-white border border-slate-200 rounded-xl text-sm font-black text-slate-700 hover:bg-white hover:border-fb-blue hover:text-fb-blue shadow-sm transition-all flex items-center gap-2">
-                   <FiMapPin /> Detect My Current Location
+                   <FiMapPin /> Update My Current Location
                  </button>
-                 <p className="text-xs text-slate-400 font-bold max-w-xs">Using GPS location helps customers find your store more accurately.</p>
+                 <p className="text-xs text-slate-400 font-bold max-w-xs">Your location is saved permanently. Use this button to update coordinates only.</p>
               </div>
             </div>
           </div>

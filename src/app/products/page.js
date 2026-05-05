@@ -3,17 +3,20 @@ import { Suspense } from 'react';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { FiFilter, FiShoppingCart, FiZap } from 'react-icons/fi';
+import { FiFilter, FiShoppingCart, FiZap, FiGrid, FiList, FiChevronDown, FiX } from 'react-icons/fi';
 import { productAPI, getImageUrl } from '@/lib/api';
 import useAuthStore from '@/store/authStore';
 import useCartStore from '@/store/cartStore';
 import toast from 'react-hot-toast';
+import './globals.css';
 
 function ProductsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [subcategories, setSubcategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
@@ -22,13 +25,56 @@ function ProductsContent() {
 
   const [filters, setFilters] = useState({
     category: searchParams?.get('category') || '',
+    subcategory: searchParams?.get('subcategory') || '',
     search: searchParams?.get('search') || '',
     sort: 'newest', page: 1, limit: 12,
   });
+  const [viewMode, setViewMode] = useState('grid');
 
   useEffect(() => {
-    productAPI.getCategories().then((r) => setCategories(r.data || [])).catch(() => {});
+    productAPI.getCategories().then((r) => {
+      const cats = r.data || [];
+      setCategories(cats);
+      
+      // Set selected category if exists in URL
+      if (filters.category) {
+        const selected = cats.find(cat => cat.slug === filters.category);
+        setSelectedCategory(selected);
+        if (selected) {
+          // Fetch subcategories for the selected category
+          fetchSubcategories(selected.id);
+        }
+      }
+    }).catch(() => {});
   }, []);
+
+  const fetchSubcategories = async (categoryId) => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/products/categories/${categoryId}/subcategories`);
+      const data = await response.json();
+      setSubcategories(data.data || []);
+    } catch (error) {
+      console.error('Error fetching subcategories:', error);
+      setSubcategories([]);
+    }
+  };
+
+  const handleCategoryClick = (category) => {
+    const newCategory = selectedCategory?.id === category.id ? null : category;
+    setSelectedCategory(newCategory);
+    
+    if (newCategory) {
+      setFilters({ ...filters, category: category.slug, subcategory: '', page: 1 });
+      fetchSubcategories(category.id);
+    } else {
+      setFilters({ ...filters, category: '', subcategory: '', page: 1 });
+      setSubcategories([]);
+    }
+  };
+
+  const handleSubcategoryClick = (subcategory) => {
+    setFilters({ ...filters, subcategory: subcategory.slug, page: 1 });
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -76,6 +122,20 @@ function ProductsContent() {
                   <option value="name">Name: A to Z</option>
                 </select>
               </div>
+              <div className="hidden sm:flex items-center bg-slate-50 rounded-xl px-3 py-1.5 border border-slate-200 gap-2">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`p-1 rounded ${viewMode === 'grid' ? 'text-[#fb641b]' : 'text-slate-400 hover:text-slate-600'}`}
+                >
+                  <FiGrid size={14} />
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`p-1 rounded ${viewMode === 'list' ? 'text-[#fb641b]' : 'text-slate-400 hover:text-slate-600'}`}
+                >
+                  <FiList size={14} />
+                </button>
+              </div>
               <button 
                 onClick={() => setShowFilters(!showFilters)} 
                 className="sm:hidden w-full flex items-center justify-center gap-2 bg-[#fb641b] text-white px-5 py-2.5 rounded-lg font-bold text-xs shadow-md active:scale-95 transition-all"
@@ -88,6 +148,83 @@ function ProductsContent() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+        {/* Category Pills - Horizontal Scroll */}
+        <div className="mb-6">
+          <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-hide">
+            <button
+              onClick={() => { 
+                setSelectedCategory(null);
+                setSubcategories([]);
+                setFilters({ ...filters, category: '', subcategory: '', page: 1 }); 
+              }}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all ${
+                !filters.category 
+                  ? 'bg-gradient-to-r from-[#fb641b] to-[#ff8c42] text-white shadow-lg shadow-orange-200 scale-105' 
+                  : 'bg-white border-2 border-slate-200 text-slate-600 hover:border-[#fb641b] hover:text-[#fb641b]'
+              }`}
+            >
+              <FiGrid size={14} />
+              All Products
+            </button>
+            {categories.map((cat) => {
+              const icons = {
+                'electronics': '📱',
+                'clothing': '👕',
+                'food': '🍔',
+                'books': '📚',
+                'home': '🏠',
+                'sports': '⚽',
+                'toys': '🎮',
+                'beauty': '💄',
+                'health': '💊',
+                'automotive': '🚗',
+                'garden': '🌱',
+                'pets': '🐕'
+              };
+              const icon = icons[cat.slug?.toLowerCase()] || '📦';
+              
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => handleCategoryClick(cat)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all ${
+                    filters.category === cat.slug 
+                      ? 'bg-gradient-to-r from-[#fb641b] to-[#ff8c42] text-white shadow-lg shadow-orange-200 scale-105' 
+                      : 'bg-white border-2 border-slate-200 text-slate-600 hover:border-[#fb641b] hover:text-[#fb641b] hover:scale-105'
+                  }`}
+                >
+                  <span className="text-base">{icon}</span>
+                  {cat.name}
+                </button>
+              );
+            })}
+          </div>
+          
+          {/* Subcategories */}
+          {selectedCategory && subcategories.length > 0 && (
+            <div className="mt-4 animate-in slide-in-from-top-2 duration-300">
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 px-2">
+                {selectedCategory.name} Subcategories
+              </p>
+              <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                {subcategories.map((subcat) => (
+                  <button
+                    key={subcat.id}
+                    onClick={() => handleSubcategoryClick(subcat)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
+                      filters.subcategory === subcat.slug 
+                        ? 'bg-gradient-to-r from-orange-100 to-orange-200 text-orange-700 border border-orange-300 shadow-sm scale-105' 
+                        : 'bg-slate-50 border border-slate-200 text-slate-600 hover:border-orange-300 hover:text-orange-600 hover:bg-orange-50'
+                    }`}
+                  >
+                    <span className="text-xs">•</span>
+                    {subcat.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
 
       <div className="flex gap-8">
         {/* Sidebar */}
@@ -102,19 +239,49 @@ function ProductsContent() {
               <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Browse Categories</h3>
               <div className="space-y-1">
                 <button 
-                  onClick={() => { setFilters({ ...filters, category: '', page: 1 }); setShowFilters(false); }}
+                  onClick={() => { 
+                    setSelectedCategory(null);
+                    setSubcategories([]);
+                    setFilters({ ...filters, category: '', subcategory: '', page: 1 }); 
+                    setShowFilters(false);
+                  }}
                   className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition-all ${!filters.category ? 'bg-orange-50 text-[#fb641b] shadow-sm border border-orange-100' : 'text-slate-600 hover:bg-slate-100'}`}
                 >
                   All Products
                 </button>
                 {categories.map((cat) => (
-                  <button 
-                    key={cat.id} 
-                    onClick={() => { setFilters({ ...filters, category: cat.slug, page: 1 }); setShowFilters(false); }}
-                    className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition-all ${filters.category === cat.slug ? 'bg-orange-50 text-[#fb641b] shadow-sm border border-orange-100' : 'text-slate-600 hover:bg-slate-100'}`}
-                  >
-                    {cat.name}
-                  </button>
+                  <div key={cat.id}>
+                    <button 
+                      onClick={() => { 
+                        handleCategoryClick(cat);
+                        setShowFilters(false);
+                      }}
+                      className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition-all ${filters.category === cat.slug ? 'bg-orange-50 text-[#fb641b] shadow-sm border border-orange-100' : 'text-slate-600 hover:bg-slate-100'}`}
+                    >
+                      {cat.name}
+                    </button>
+                    {/* Subcategories in sidebar */}
+                    {selectedCategory?.id === cat.id && subcategories.length > 0 && (
+                      <div className="ml-4 mt-1 space-y-1 animate-in slide-in-from-left-2 duration-300">
+                        {subcategories.map((subcat) => (
+                          <button
+                            key={subcat.id}
+                            onClick={() => {
+                              handleSubcategoryClick(subcat);
+                              setShowFilters(false);
+                            }}
+                            className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                              filters.subcategory === subcat.slug 
+                                ? 'bg-orange-100 text-orange-700 border-l-2 border-orange-400' 
+                                : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700'
+                            }`}
+                          >
+                            • {subcat.name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 ))}
               </div>
             </div>
@@ -144,7 +311,7 @@ function ProductsContent() {
             </div>
           ) : (
             <>
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
+            <div className={`${viewMode === 'grid' ? 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5' : 'space-y-4'} gap-x-3 gap-y-4`}>
               {products.map((product) => {
                 let productImages = [];
                 try {
@@ -162,55 +329,93 @@ function ProductsContent() {
                 };
 
                 return (
-                  <div key={product.id} className="bg-white rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition-all duration-300 flex flex-col h-full overflow-hidden group">
-                    <Link href={`/products/${product.slug}`} className="relative block aspect-[4/5] sm:aspect-square bg-slate-50 overflow-hidden">
-                      {mainImage ? (
-                        <img 
-                          src={getImageUrl(mainImage)} 
-                          className="w-full h-full object-contain p-2 sm:p-4 group-hover:scale-105 transition-transform duration-500" 
-                          alt={product.name} 
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center opacity-10">
-                           <FiShoppingCart size={40} />
-                        </div>
-                      )}
+                  <div key={product.id} className={`product-card group relative bg-white rounded-xl shadow-sm border border-slate-100 hover:shadow-lg hover:border-orange-200 ${viewMode === 'list' ? 'flex gap-3 p-3' : 'flex flex-col h-full overflow-hidden'}`}>
+                    {/* Product Image Container */}
+                    <div className="relative">
+                      <Link href={`/products/${product.slug}`} className={`block ${viewMode === 'list' ? 'w-16 h-16 flex-shrink-0' : 'aspect-[5/4]'} w-full bg-gradient-to-br from-slate-50 to-slate-100 overflow-hidden rounded-t-xl ${viewMode === 'list' ? 'rounded-xl' : ''}`}>
+                        {mainImage ? (
+                          <div className="relative w-full h-full flex items-center justify-center p-1 sm:p-2">
+                            <img 
+                              src={getImageUrl(mainImage)} 
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                              alt={product.name} 
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200">
+                             <div className="text-center">
+                               <FiShoppingCart size={32} className="mx-auto mb-2 text-slate-400" />
+                               <p className="text-xs text-slate-400">No Image</p>
+                             </div>
+                          </div>
+                        )}
                       
-                      {product.compare_at_price > product.price && (
-                        <div className="absolute top-2 left-2 bg-rose-500 text-white text-[8px] sm:text-[10px] font-black px-1.5 py-0.5 rounded shadow-sm">
-                           {Math.round(((product.compare_at_price - product.price) / product.compare_at_price) * 100)}% OFF
+                        {/* Discount Badge */}
+                        {product.compare_at_price > product.price && (
+                          <div className="discount-badge absolute top-3 left-3 text-white text-xs font-bold px-2.5 py-1.5 rounded-full flex items-center gap-1">
+                            <span className="text-xs">🔥</span>
+                            {Math.round(((product.compare_at_price - product.price) / product.compare_at_price) * 100)}% OFF
+                          </div>
+                        )}
+                        
+                        {/* Quick Actions Overlay */}
+                        <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col gap-2">
+                          <button className="w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center text-slate-600 hover:text-orange-500 hover:bg-white transition-all hover:scale-110">
+                            <FiShoppingCart size={16} />
+                          </button>
                         </div>
-                      )}
-                    </Link>
+                      </Link>
+                    </div>
 
-                    <div className="p-2 sm:p-4 flex flex-col flex-1">
-                      <div className="flex-1">
-                        <p className="text-[8px] sm:text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">{product.category?.name}</p>
-                        <Link href={`/products/${product.slug}`}>
-                          <h3 className="text-xs sm:text-sm font-bold text-slate-800 line-clamp-2 hover:text-[#fb641b] transition-colors leading-tight min-h-[2.5rem]">
-                            {product.name}
-                          </h3>
-                        </Link>
-                        <div className="mt-2 flex items-center gap-1.5 sm:gap-2">
-                          <span className="text-sm sm:text-lg font-black text-slate-900">₹{Math.round(product.price)}</span>
-                          {product.compare_at_price > product.price && (
-                            <span className="text-[10px] sm:text-xs text-slate-400 line-through">₹{Math.round(product.compare_at_price)}</span>
-                          )}
-                        </div>
+                    {/* Product Content */}
+                    <div className={`p-2 sm:p-2.5 flex flex-col ${viewMode === 'list' ? 'flex-1 justify-center' : 'flex-1'}`}>
+                      {/* Category Badge */}
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="category-badge inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] font-bold">
+                          {product.category?.name}
+                        </span>
+                        {product.rating && (
+                          <div className="flex items-center gap-1">
+                            <span className="text-yellow-400 text-xs">★</span>
+                            <span className="text-[10px] text-slate-600 font-medium">{product.rating}</span>
+                          </div>
+                        )}
                       </div>
                       
-                      <div className="grid grid-cols-2 gap-1.5 sm:gap-3 mt-4">
+                      {/* Product Title */}
+                      <Link href={`/products/${product.slug}`} className="block mb-1.5">
+                        <h3 className={`font-bold text-slate-800 line-clamp-1 hover:text-orange-600 transition-colors leading-tight ${viewMode === 'list' ? 'text-xs mb-1' : 'text-xs min-h-[1rem]'}`}>
+                          {product.name}
+                        </h3>
+                      </Link>
+                      
+                      {/* Price Section */}
+                      <div className="flex items-end gap-1 mb-1.5">
+                        <span className={`font-black text-slate-900 ${viewMode === 'list' ? 'text-sm' : 'text-xs sm:text-sm'}`}>
+                          ₹{Math.round(product.price)}
+                        </span>
+                        {product.compare_at_price > product.price && (
+                          <span className="text-xs text-slate-400 line-through mb-0.5">
+                            ₹{Math.round(product.compare_at_price)}
+                          </span>
+                        )}
+                      </div>
+                      
+                      {/* Action Buttons */}
+                      <div className={`${viewMode === 'list' ? 'flex items-center gap-2' : 'grid grid-cols-2 gap-1.5'} mt-auto`}>
                         <button 
                           onClick={() => handleAddToCart(product.id)} 
-                          className="flex items-center justify-center py-2 sm:py-2.5 rounded-lg border border-slate-200 text-slate-700 font-bold text-[9px] sm:text-xs hover:bg-slate-50 transition-all"
+                          className={`btn-secondary flex items-center justify-center gap-1 py-1.5 px-2 rounded-md text-slate-700 font-bold text-[9px] group ${viewMode === 'list' ? 'flex-1' : ''}`}
                         >
-                          <FiShoppingCart className="mr-1 sm:mr-2" size={12} /> Cart
+                          <FiShoppingCart className="group-hover:scale-110 transition-transform" size={10} /> 
+                          <span className="hidden sm:inline text-[9px]">Cart</span>
                         </button>
                         <button 
                           onClick={handleBuyNow} 
-                          className="flex items-center justify-center py-2 sm:py-2.5 rounded-lg bg-[#fb641b] text-white font-bold text-[9px] sm:text-xs hover:bg-[#e65a18] transition-all shadow-sm shadow-orange-100"
+                          className={`btn-primary flex items-center justify-center gap-1 py-1.5 px-2 rounded-md text-white font-bold text-[9px] shadow-md ${viewMode === 'list' ? 'flex-1' : ''}`}
                         >
-                          <FiZap className="mr-1 sm:mr-2" size={12} /> Buy
+                          <FiZap className="group-hover:scale-110 transition-transform" size={10} /> 
+                          <span className="hidden sm:inline text-[9px]">Buy</span>
                         </button>
                       </div>
                     </div>

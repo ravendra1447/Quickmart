@@ -37,31 +37,94 @@ export default function CheckoutPage() {
   useEffect(() => {
     if (user) {
       fetchCart();
+      
+      // Get addresses from API
       addressAPI.list().then(r => {
         const addrs = r.data || [];
+        console.log('📋 Saved addresses:', addrs);
         setAddresses(addrs);
-        const def = addrs.find(a => a.is_default) || addrs[0];
-        if (def) selectAddress(def);
-      }).catch(() => {});
+        
+        // Also add current location address if available
+        const storedAddress = localStorage.getItem('userAddress');
+        if (storedAddress) {
+          const currentAddr = JSON.parse(storedAddress);
+          const locationAddr = {
+            id: 'current-location',
+            label: 'Current Location',
+            full_name: user.name || 'Current User',
+            phone: user.phone || '',
+            address_line: currentAddr.fullAddress || `${currentAddr.area}, ${currentAddr.city}`,
+            city: currentAddr.city || '',
+            state: currentAddr.state || '',
+            pincode: currentAddr.pincode || '',
+            latitude: JSON.parse(localStorage.getItem('userLocation') || '{}').latitude,
+            longitude: JSON.parse(localStorage.getItem('userLocation') || '{}').longitude,
+            is_default: true
+          };
+          
+          // Add current location to the beginning of addresses
+          const allAddresses = [locationAddr, ...addrs];
+          setAddresses(allAddresses);
+          
+          // Select current location by default
+          selectAddress(locationAddr);
+        } else {
+          // Select default saved address
+          const def = addrs.find(a => a.is_default) || addrs[0];
+          if (def) selectAddress(def);
+        }
+      }).catch((error) => {
+        console.error('❌ Error fetching addresses:', error);
+        
+        // Fallback to current location from localStorage
+        const storedAddress = localStorage.getItem('userAddress');
+        if (storedAddress) {
+          const currentAddr = JSON.parse(storedAddress);
+          const locationAddr = {
+            id: 'current-location',
+            label: 'Current Location',
+            full_name: user.name || 'Current User',
+            phone: user.phone || '',
+            address_line: currentAddr.fullAddress || `${currentAddr.area}, ${currentAddr.city}`,
+            city: currentAddr.city || '',
+            state: currentAddr.state || '',
+            pincode: currentAddr.pincode || '',
+            is_default: true
+          };
+          setAddresses([locationAddr]);
+          selectAddress(locationAddr);
+        }
+      });
+      
       setShipping(s => ({ ...s, name: user.name || '', phone: user.phone || '' }));
     }
   }, [user]);
 
   const selectAddress = (addr) => {
+    console.log('📍 Selecting address:', addr);
     setSelectedAddress(addr);
     setShipping({
       name: addr.full_name, phone: addr.phone, address: addr.address_line,
       city: addr.city, state: addr.state, pincode: addr.pincode,
     });
     setShowNewAddress(false);
+    
     if (addr.latitude && addr.longitude) {
+      console.log('🚚 Getting delivery estimate for:', addr.latitude, addr.longitude);
       hyperlocalAPI.getDeliveryEstimate({
         latitude: addr.latitude, longitude: addr.longitude,
         seller_lat: 26.8467, seller_lng: 80.9462, item_count: items.length,
       }).then(r => {
+        console.log('📦 Delivery estimate:', r);
         setDeliveryFee(r.data?.delivery_fee || 0);
         setEstimatedTime(r.data?.estimated_minutes || 20);
-      }).catch(() => {});
+      }).catch((error) => {
+        console.error('❌ Delivery estimate error:', error);
+      });
+    } else {
+      console.log('⚠️ No coordinates for address, using default delivery');
+      setDeliveryFee(0);
+      setEstimatedTime(20);
     }
   };
 
@@ -87,8 +150,15 @@ export default function CheckoutPage() {
     if (items.length === 0) { toast.error('Cart is empty'); return; }
     setLoading(true);
     try {
-      let addrId = selectedAddress?.id || null;
-      if (!addrId && saveAddress) {
+      let addrId = null;
+      
+      // Only use address_id if it's a real database ID (not 'current-location')
+      if (selectedAddress?.id && selectedAddress.id !== 'current-location') {
+        addrId = selectedAddress.id;
+      }
+      
+      // If no real address and user wants to save, create new address
+      if (!addrId && saveAddress && showNewAddress) {
         try {
           const resAddr = await addressAPI.create({
             full_name: shipping.name, phone: shipping.phone, address_line: shipping.address,
@@ -100,8 +170,9 @@ export default function CheckoutPage() {
       }
 
       const payload = {
-        shipping, payment_method: paymentMethod,
-        address_id: addrId,
+        shipping, 
+        payment_method: paymentMethod,
+        address_id: addrId, // Will be null for current location or new unsaved addresses
         coupon_code: appliedCoupon?.code || null,
         delivery_fee: deliveryFee,
       };
@@ -115,7 +186,10 @@ export default function CheckoutPage() {
         toast.success('Order placed successfully!');
         router.push(`/orders/success?order=${res.data?.order?.order_number || ''}`);
       }
-    } catch (err) { toast.error(err.message || 'Failed to place order'); }
+    } catch (err) { 
+      console.error('Order error:', err);
+      toast.error(err.message || 'Failed to place order'); 
+    }
     setLoading(false);
   };
 
@@ -174,10 +248,15 @@ export default function CheckoutPage() {
                   <div className="grid sm:grid-cols-2 gap-4">
                     {addresses.map(a => (
                       <div key={a.id} onClick={() => selectAddress(a)}
-                        className={`relative cursor-pointer p-5 rounded-2xl border-2 transition-all group ${selectedAddress?.id === a.id ? 'border-[#fb641b] bg-primary-50/30' : 'border-dark-100 hover:border-dark-200'}`}>
+                        className={`relative cursor-pointer p-5 rounded-2xl border-2 transition-all group ${selectedAddress?.id === a.id ? 'border-[#fb641b] bg-primary-50/30' : 'border-dark-100 hover:border-dark-200'} ${a.id === 'current-location' ? 'bg-orange-50 border-orange-200' : ''}`}>
                         {selectedAddress?.id === a.id && (
                           <div className="absolute top-4 right-4 w-6 h-6 bg-[#fb641b] rounded-full flex items-center justify-center text-white">
                             <FiCheck size={14} />
+                          </div>
+                        )}
+                        {a.id === 'current-location' && (
+                          <div className="absolute top-4 left-4 bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+                            <FiMapPin size={10} /> Current
                           </div>
                         )}
                         <p className="text-[10px] font-black text-[#fb641b] uppercase tracking-widest mb-1">{a.label}</p>

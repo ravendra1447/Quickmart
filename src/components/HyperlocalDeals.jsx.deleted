@@ -1,0 +1,6 @@
+// HyperlocalDeals component deleted as requested
+// File moved to .deleted extension
+
+export default function HyperlocalDeals() {
+  return null;
+}

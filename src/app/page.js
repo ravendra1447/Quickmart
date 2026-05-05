@@ -6,6 +6,8 @@ import { productAPI, hyperlocalAPI, getImageUrl } from '@/lib/api';
 import useAuthStore from '@/store/authStore';
 import useCartStore from '@/store/cartStore';
 import toast from 'react-hot-toast';
+import EnhancedLocationDetector from '@/components/EnhancedLocationDetector';
+import NearbyProductsDisplay from '@/components/NearbyProductsDisplay';
 
 export default function HomePage() {
   const [categories, setCategories] = useState([]);
@@ -13,6 +15,7 @@ export default function HomePage() {
   const [banners, setBanners] = useState([]);
   const [activeBanner, setActiveBanner] = useState(0);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [userLocation, setUserLocation] = useState(null);
   const { user } = useAuthStore();
   const { addItem } = useCartStore();
 
@@ -135,81 +138,100 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Top Deals Section - 100% Dynamic */}
-      <section className="max-w-[1248px] mx-auto px-2 sm:px-4 mt-4">
-        <div className="bg-white rounded-sm shadow-fk flex flex-col">
-          <div className="px-6 py-5 border-b border-fk-divider flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-bold text-fk-text">Top Deals on NearbyDukan</h2>
-              <p className="text-xs text-emerald-600 font-bold mt-1 tracking-tight">Handpicked premium items just for you</p>
-            </div>
-            <Link href="/products" className="bg-fk-blue text-white px-6 py-2.5 rounded-sm text-xs font-bold uppercase shadow-md hover:bg-fk-blue/90 transition-all">View All</Link>
-          </div>
-          
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 p-2 sm:p-4 gap-2 sm:gap-4">
-            {featuredProducts.map((product) => {
-              let imgs = [];
-              try {
-                imgs = typeof product.images === 'string' ? JSON.parse(product.images) : (product.images || []);
-              } catch (e) { imgs = []; }
-              const displayImg = product.image_url || (imgs.length > 0 ? imgs[0] : null);
+      {/* Silent Location Detector - Hidden from UI */}
+      <EnhancedLocationDetector 
+        onLocationUpdate={(location) => setUserLocation(location)} 
+        showAddress={false}
+      />
 
-              return (
-              <div key={product.id} className="bg-white p-3 flex flex-col items-center text-center group cursor-pointer border border-slate-100 hover:shadow-xl transition-all rounded-sm relative">
-                <Link href={`/products/${product.slug}`} className="w-full">
-                  <div className="h-32 sm:h-48 w-full flex items-center justify-center mb-3 relative overflow-hidden bg-slate-50 rounded-sm">
-                    {displayImg ? (
-                      <img 
-                        src={getImageUrl(displayImg)} 
-                        className="max-h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500" 
-                        alt={product.name} 
-                        onError={(e) => {
-                          e.target.onerror = null;
-                          e.target.src = 'https://cdn-icons-png.flaticon.com/512/3081/3081840.png';
-                        }}
-                      />
-                    ) : (
-                      <div className="flex flex-col items-center gap-1 opacity-20">
-                        <FiShoppingCart size={40} />
-                        <span className="text-[8px] font-black uppercase">NearbyDukan</span>
-                      </div>
-                    )}
-                    <span className="absolute top-2 left-2 bg-emerald-500 text-white text-[7px] sm:text-[8px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-tighter">Top Deal</span>
-                  </div>
-                  <h3 className="text-[11px] sm:text-sm font-bold text-slate-800 line-clamp-2 h-8 sm:h-10 mb-1 group-hover:text-fb-blue text-left">{product.name}</h3>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-emerald-600 text-xs sm:text-lg font-black tracking-tight">₹{product.price}</span>
-                    {product.compare_at_price > product.price && (
-                      <span className="text-[10px] sm:text-xs text-slate-400 line-through">₹{product.compare_at_price}</span>
-                    )}
-                  </div>
-                  <p className="text-emerald-600 text-[9px] sm:text-[10px] font-black uppercase text-left">Free Delivery</p>
-                </Link>
-                
-                <div className="mt-4 grid grid-cols-2 gap-2 w-full">
-                  <button 
-                    onClick={(e) => { e.preventDefault(); handleAddToCart(product.id); }}
-                    className="flex items-center justify-center py-2.5 rounded-lg border-2 border-slate-100 text-slate-700 font-black text-[9px] sm:text-[10px] uppercase hover:bg-slate-50 transition-all"
-                  >
-                    <FiShoppingCart className="mr-1" size={12} /> Cart
-                  </button>
-                  <button 
-                    onClick={async (e) => { 
-                      e.preventDefault(); 
-                      const ok = await handleAddToCart(product.id);
-                      if (ok) window.location.href='/checkout'; 
-                    }}
-                    className="flex items-center justify-center py-2.5 rounded-lg bg-[#fb641b] text-white font-black text-[9px] sm:text-[10px] uppercase hover:bg-[#e65a18] shadow-lg shadow-orange-100 transition-all"
-                  >
-                    <FiZap className="mr-1" size={12} /> Buy
-                  </button>
-                </div>
+      {/* Nearby Products Section - Location-based */}
+      {userLocation && (
+        <section className="max-w-[1248px] mx-auto px-2 sm:px-4 mt-4">
+          <NearbyProductsDisplay 
+            userLocation={userLocation} 
+            maxDistance={10} 
+            limit={20}
+          />
+        </section>
+      )}
+
+      {/* Top Deals Section - Fallback for no location */}
+      {!userLocation && (
+        <section className="max-w-[1248px] mx-auto px-2 sm:px-4 mt-4">
+          <div className="bg-white rounded-sm shadow-fk flex flex-col">
+            <div className="px-6 py-5 border-b border-fk-divider flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-fk-text">Top Deals on NearbyDukan</h2>
+                <p className="text-xs text-emerald-600 font-bold mt-1 tracking-tight">Handpicked premium items just for you</p>
               </div>
-              );
-            })}
+              <Link href="/products" className="bg-fk-blue text-white px-6 py-2.5 rounded-sm text-xs font-bold uppercase shadow-md hover:bg-fk-blue/90 transition-all">View All</Link>
+            </div>
+            
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 p-2 sm:p-4 gap-2 sm:gap-4">
+              {featuredProducts.map((product) => {
+                let imgs = [];
+                try {
+                  imgs = typeof product.images === 'string' ? JSON.parse(product.images) : (product.images || []);
+                } catch (e) { imgs = []; }
+                const displayImg = product.image_url || (imgs.length > 0 ? imgs[0] : null);
+
+                return (
+                <div key={product.id} className="bg-white p-3 flex flex-col items-center text-center group cursor-pointer border border-slate-100 hover:shadow-xl transition-all rounded-sm relative">
+                  <Link href={`/products/${product.slug}`} className="w-full">
+                    <div className="h-32 sm:h-48 w-full flex items-center justify-center mb-3 relative overflow-hidden bg-slate-50 rounded-sm">
+                      {displayImg ? (
+                        <img 
+                          src={getImageUrl(displayImg)} 
+                          className="max-h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500" 
+                          alt={product.name} 
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = 'https://cdn-icons-png.flaticon.com/512/3081/3081840.png';
+                          }}
+                        />
+                      ) : (
+                        <div className="flex flex-col items-center gap-1 opacity-20">
+                          <FiShoppingCart size={40} />
+                          <span className="text-[8px] font-black uppercase">NearbyDukan</span>
+                        </div>
+                      )}
+                      <span className="absolute top-2 left-2 bg-emerald-500 text-white text-[7px] sm:text-[8px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-tighter">Top Deal</span>
+                    </div>
+                    <h3 className="text-[11px] sm:text-sm font-bold text-slate-800 line-clamp-2 h-8 sm:h-10 mb-1 group-hover:text-fb-blue text-left">{product.name}</h3>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-emerald-600 text-xs sm:text-lg font-black tracking-tight">₹{product.price}</span>
+                      {product.compare_at_price > product.price && (
+                        <span className="text-[10px] sm:text-xs text-slate-400 line-through">₹{product.compare_at_price}</span>
+                      )}
+                    </div>
+                    <p className="text-emerald-600 text-[9px] sm:text-[10px] font-black uppercase text-left">Free Delivery</p>
+                  </Link>
+                  
+                  <div className="mt-4 grid grid-cols-2 gap-2 w-full">
+                    <button 
+                      onClick={(e) => { e.preventDefault(); handleAddToCart(product.id); }}
+                      className="flex items-center justify-center py-2.5 rounded-lg border-2 border-slate-100 text-slate-700 font-black text-[9px] sm:text-[10px] uppercase hover:bg-slate-50 transition-all"
+                    >
+                      <FiShoppingCart className="mr-1" size={12} /> Cart
+                    </button>
+                    <button 
+                      onClick={async (e) => { 
+                        e.preventDefault(); 
+                        const ok = await handleAddToCart(product.id);
+                        if (ok) window.location.href='/checkout'; 
+                      }}
+                      className="flex items-center justify-center py-2.5 rounded-lg bg-[#fb641b] text-white font-black text-[9px] sm:text-[10px] uppercase hover:bg-[#e65a18] shadow-lg shadow-orange-100 transition-all"
+                    >
+                      <FiZap className="mr-1" size={12} /> Buy
+                    </button>
+                  </div>
+                </div>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Middle Dynamic Advertisement Banner */}
       {banners.find(b => b.position >= 10) && (
@@ -226,6 +248,7 @@ export default function HomePage() {
         </section>
       )}
 
+      
       {/* Seller Promo */}
       <section className="max-w-[1248px] mx-auto px-2 sm:px-4 mt-6">
         <div className="bg-white p-12 rounded-sm shadow-fk flex flex-col items-center text-center border-b-4 border-fb-blue relative overflow-hidden">
